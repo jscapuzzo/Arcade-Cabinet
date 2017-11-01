@@ -14,15 +14,9 @@ public class WormGame extends JPanel{
     boolean canMove = true;
     
     public void moveWormRight(){
-    	boolean inBounds = checkInBounds(xWorm);
-    	boolean letMove = checkMove(xWorm);
+    	boolean inBounds = checkUpperBounds(xWorm);
     	if(inBounds == true){
-    		if(letMove == true){
-        		xWorm += 8;
-        	}
-        	else{
-        		letMove = true;
-        	}
+    		xWorm += 8;
     	}
     	else{
     		inBounds = true;
@@ -30,15 +24,9 @@ public class WormGame extends JPanel{
     }
     
     public void moveWormLeft(){
-    	boolean inBounds = checkInBounds(xWorm);
-    	boolean letMove = checkMove(xWorm);
+    	boolean inBounds = checkLowerBounds(xWorm);
     	if(inBounds == true){
-    		if(letMove == true){
-        		xWorm -= 8;
-        	}
-        	else{
-        		letMove = true;
-        	}
+    		xWorm -= 8;
     	}
     	else{
     		inBounds = true;
@@ -46,15 +34,9 @@ public class WormGame extends JPanel{
     }
     
     public void moveWormUp(){
-    	boolean inBounds = checkInBounds(yWorm);
-    	boolean letMove = checkMove(yWorm);
+    	boolean inBounds = checkLowerBounds(yWorm);
     	if(inBounds == true){
-    		if(letMove == true){
-        		yWorm -= 8;
-        	}
-        	else{
-        		letMove = true;
-        	}
+    		yWorm -= 8;
     	}
     	else{
     		inBounds = true;
@@ -62,27 +44,18 @@ public class WormGame extends JPanel{
     }
     
     public void moveWormDown(){
-    	boolean inBounds = checkInBounds(yWorm);
-    	boolean letMove = checkMove(yWorm);
+    	boolean inBounds = checkUpperBounds(yWorm);
     	if(inBounds == true){
-    		if(letMove == true){
-        		yWorm += 8;
-        	}
-        	else{
-        		letMove = true;
-        	}
+    		yWorm += 8;
     	}
     	else{
     		inBounds = true;
     	}
     }
     
-    public boolean checkInBounds(int position){
+    public boolean checkLowerBounds(int position){
     	int p = position;
-    	if(p >= 400){
-    		return false;
-    	}
-    	else if(p < 0){
+    	if(p <= 0){
     		return false;
     	}
     	else{
@@ -90,12 +63,9 @@ public class WormGame extends JPanel{
     	}
     }
     
-    public boolean checkMove(int position){
+    public boolean checkUpperBounds(int position){
     	int p = position;
-    	if(p + 1 >= 400){
-    		return false;
-    	}
-    	else if(p - 1 < 0){
+    	if(p >= 504){
     		return false;
     	}
     	else{
@@ -115,13 +85,13 @@ public class WormGame extends JPanel{
     
     public void moveFood(){
         Random ran = new Random();
-        xFood = ran.nextInt(512);
-        yFood = ran.nextInt(512);
+        xFood = ran.nextInt(504);
+        yFood = ran.nextInt(504);
         while(xFood % 8 != 0){
-        	xFood = ran.nextInt(512);
+        	xFood = ran.nextInt(504);
         }
         while(yFood % 8 != 0){
-        	yFood = ran.nextInt(512);
+        	yFood = ran.nextInt(504);
         }
     }
     
@@ -136,7 +106,7 @@ public class WormGame extends JPanel{
         G.fillRect(xFood, yFood, 8, 8);
         G.setColor(Color.BLUE);
         G.drawString("Use the arrow keys to move!", 156, 156);
-        G.drawString("Score: " + String.valueOf(score), 184, 166);
+        G.drawString("Score: " + String.valueOf(score), 214, 166);
         G.dispose();
     }
 
@@ -147,18 +117,7 @@ public class WormGame extends JPanel{
         f.add(w);
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        f.addKeyListener(new KeyAdapter(){
-        	public void key(KeyEvent key){
-        		int k = key.getKeyCode();
-        		if(k == KeyEvent.VK_DOWN){
-        			xWorm++;
-        		}
-        		else{
-        		}
-        	}
-        });
-        System.out.println(f.getContentPane().getSize());
+        //System.out.println(f.getContentPane().getSize());
         while(true){
         	f.addKeyListener(new KeyAdapter(){
                 @Override
