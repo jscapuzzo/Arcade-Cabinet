@@ -1,28 +1,35 @@
 import java.awt.EventQueue;
+import java.awt.Font;
 
-import javax.swing.JFrame;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
+import javax.swing.JDesktopPane;
+import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
-import java.awt.Color;
-import javax.swing.JList;
+import javax.swing.JLabel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
-import java.awt.Font;
-import javax.swing.ButtonGroup;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class ArcadeGUI {
 
+	private JDesktopPane desktop;
 	private JFrame frame;
-
+	private JInternalFrame gameFrame;
+	private JPanel panel;
+	private JToolBar themeToolBar;
+	private JToolBar gameChoiceToolBar;
 	/**
 	 * Launch the application.
 	 */
@@ -49,29 +56,54 @@ public class ArcadeGUI {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initialize() 
+	{
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1130, 659);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-	    //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	    frame.setUndecorated(true);
+		frame.getContentPane().setLayout(new BorderLayout(50, 50));
 		
-		JButton btnExit = new JButton("Exit");
-		btnExit.setBounds(1005, 572, 113, 40);
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.exit(0);
-			}
-		});
-		frame.getContentPane().setLayout(null);
+		desktop = new JDesktopPane();
+		desktop.setLayout(new BorderLayout(0,0));
 		
-		JToolBar themeToolBar = new JToolBar();
+		gameFrame = new JInternalFrame("Main Menu");
+		//frame.getContentPane().add(gameFrame, BorderLayout.CENTER);
+		
+		themeToolBar = new JToolBar();
 		themeToolBar.setFont(new Font("Arial", Font.PLAIN, 15));
 		themeToolBar.setOrientation(SwingConstants.VERTICAL);
-		themeToolBar.setBounds(23, 60, 136, 223);
-		frame.getContentPane().add(themeToolBar);
+		//themeToolBar.setBounds(23, 60, 136, 223);
 		
+		
+		gameChoiceToolBar = new JToolBar();
+		gameChoiceToolBar.setOrientation(SwingConstants.VERTICAL);
+		gameChoiceToolBar.setFont(new Font("Arial", Font.PLAIN, 15));
+		//gameChoiceToolBar.setBounds(23, 276, 136, 240);
+		
+		initGameFrame();
+		initToolBars();
+		
+		//frame.setMinimumSize(new Dimension(528, 551));
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		//frame.setMinimumSize(null);
+		frame.setVisible(true);
+	}
+	
+	private void initGameFrame()
+	{
+		//gameFrame.setResizable(true);
+		gameFrame.setPreferredSize(new Dimension(528, 551));
+		gameFrame.setMaximumSize(new Dimension(528, 551));
+		gameFrame.setMinimumSize(new Dimension(528, 551));
+		gameFrame.setMaximizable(true);
+		//gameFrame.add(panel);
+		gameFrame.setVisible(true);
+		desktop.add(gameFrame);
+		frame.getContentPane().add(desktop, BorderLayout.CENTER);
+	}
+	
+	private void initToolBars()
+	{
 		JLabel lblThemeLabel = new JLabel("Select a theme:");
 		lblThemeLabel.setFont(new Font("Arial", Font.BOLD, 15));
 		themeToolBar.add(lblThemeLabel);
@@ -96,28 +128,34 @@ public class ArcadeGUI {
 		themeGroup.add(rdbtnClassicTheme);
 		
 		JButton btnSubmitTheme = new JButton("Submit");
+		btnSubmitTheme.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+					SwingUtilities.updateComponentTreeUI(frame);  // update components
+					frame.pack();
+					//frame.setBounds(100, 100, 1130, 659);
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedLookAndFeelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		themeToolBar.addSeparator();
 		themeToolBar.addSeparator();
 		themeToolBar.add(btnSubmitTheme);
-		btnSubmitTheme.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		btnSubmitTheme.setFont(new Font("Arial", Font.PLAIN, 15));
-		
-		JInternalFrame gameFrame = new JInternalFrame("Main Menu");
-		gameFrame.setBounds(318, 60, 507, 507);
-		gameFrame.getContentPane().setForeground(new Color(0, 255, 255));
-		gameFrame.setForeground(new Color(0, 255, 0));
-		frame.getContentPane().add(gameFrame);
-		gameFrame.setVisible(true);
-		frame.getContentPane().add(btnExit);
-		
-		JToolBar gameChoiceToolBar = new JToolBar();
-		gameChoiceToolBar.setOrientation(SwingConstants.VERTICAL);
-		gameChoiceToolBar.setFont(new Font("Arial", Font.PLAIN, 15));
-		gameChoiceToolBar.setBounds(23, 276, 136, 240);
-		frame.getContentPane().add(gameChoiceToolBar);
 		
 		JLabel lblSelectAGame = new JLabel("Select a game:");
 		lblSelectAGame.setFont(new Font("Arial", Font.BOLD, 15));
@@ -140,6 +178,30 @@ public class ArcadeGUI {
 		gameChoiceToolBar.add(rdbtnGame3);
 		
 		JButton btnSubmitChoice = new JButton("Submit");
+		btnSubmitChoice.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+					SwingUtilities.updateComponentTreeUI(frame);  // update components
+					frame.pack();
+					//frame.setBounds(100, 100, 1130, 659);
+					frame.setLocationRelativeTo(null);
+					frame.setVisible(true);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedLookAndFeelException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 		btnSubmitChoice.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.addSeparator();
@@ -149,5 +211,9 @@ public class ArcadeGUI {
 		choiceGroup.add(rdbtnGame1);
 		choiceGroup.add(rdbtnGame2);
 		choiceGroup.add(rdbtnGame3);
+		
+		frame.getContentPane().add(themeToolBar, BorderLayout.LINE_START);
+		frame.getContentPane().add(gameChoiceToolBar, BorderLayout.LINE_END);
 	}
+
 }
