@@ -106,15 +106,15 @@ public class PaddleGame extends JPanel{
     
     public void moveBall(){
     	xBall += ballDirection;
-    	boolean upperBound = checkUpperBounds(yBall);
+    	boolean upperBound = checkBallUpperBounds(yBall);
     	boolean lowerBound = checkLowerBounds(yBall);
     	if(waitBallMove == false){
 	    	if(upperBound == false){
-	    		ballYDirection = OBJ_SIZE;
+	    		ballYDirection = -OBJ_SIZE;
 	    		waitBallMove = true;
 	    	}
 	    	else if(lowerBound == false){
-	    		ballYDirection = -OBJ_SIZE;
+	    		ballYDirection = OBJ_SIZE;
 	    		waitBallMove = true;
 	    	}
 	    	else{
