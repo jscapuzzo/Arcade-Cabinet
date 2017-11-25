@@ -1,255 +1,293 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.event.KeyEvent;
-import java.util.Random;
+import java.awt.event.KeyListener;
 
-public class PaddleGame extends JPanel{
+/**
+ * 
+ * @author J. Capuzzo and R. King
+ *
+ */
+@SuppressWarnings("serial")
+public class PaddleGame extends JPanel implements KeyListener
+{
 	static final int OBJ_SIZE = 32; // The size of the worm and worm ford
 	static final int PADDLE_HEIGHT = OBJ_SIZE * 2;
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    static final int WIDTH = BOUNDS_SIZE + 16;
+    static final int HEIGHT = BOUNDS_SIZE + 39;
+    
     static int xPaddle = 0; // The x-position of the worm
     static int yPaddle = 0; // The y-position of the worm
-    static int xEnemyPaddle = BOUNDS_SIZE - OBJ_SIZE; // The x-position of the worm
+    static int xEnemyPaddle = BOUNDS_SIZE; // The x-position of the worm
     static int yEnemyPaddle = 0; // The y-position of the worm
-    int xBall = BOUNDS_SIZE/2; // The x-position of the worm food
-    int yBall = BOUNDS_SIZE/2; // The y-position of the worm food
-    int ballDirection = -OBJ_SIZE;
-    int ballYDirection = -OBJ_SIZE;
+    
+    private int xBall = BOUNDS_SIZE/2; // The x-position of the worm food
+    private int yBall = BOUNDS_SIZE/2; // The y-position of the worm food
+    private int xBallDirection = 4;         // velocity of ball
+    private int yBallDirection = 8;
+    private final int CHANGE = 16;
+    
     int score = 0; // The player's score
     int enemyScore = 0;
+    
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
     boolean resetBall = false;
     boolean waitBallMove = false;
-	
-    public void movePaddleUp(){
+    
+    public void movePaddleUp()
+    {
     	boolean inBounds = checkLowerBounds(yPaddle);
-    	if(inBounds == true){
-    		yPaddle -= OBJ_SIZE;
+    	if(inBounds == true)
+    	{
+    		yPaddle -= CHANGE; 		
     	}
-    	else{
-    		inBounds = true;
-    	}
-    }
+     }
     
-    public void movePaddleDown(){
+    public void movePaddleDown()
+    {
     	boolean inBounds = checkUpperBounds(yPaddle);
-    	if(inBounds == true){
-    		yPaddle += OBJ_SIZE;
-    	}
-    	else{
-    		inBounds = true;
+    	
+    	if(inBounds == true)
+    	{
+    		yPaddle += CHANGE;
     	}
     }
     
-    public void moveEnemyPaddleUp(){
+    public void moveEnemyPaddleUp()
+    {
     	boolean inBounds = checkLowerBounds(yEnemyPaddle);
-    	if(inBounds == true){
-    		yEnemyPaddle -= OBJ_SIZE;
-    	}
-    	else{
-    		inBounds = true;
+    	if(inBounds == true)
+    	{
+    		yEnemyPaddle -= CHANGE/2;	//nerfing the ai paddle
     	}
     }
     
-    public void moveEnemyPaddleDown(){
+    public void moveEnemyPaddleDown()
+    {
     	boolean inBounds = checkUpperBounds(yEnemyPaddle);
-    	if(inBounds == true){
-    		yEnemyPaddle += OBJ_SIZE;
-    	}
-    	else{
-    		inBounds = true;
+    	if(inBounds == true)
+    	{
+    		yEnemyPaddle += CHANGE/2;
     	}
     }
     
     public boolean checkLowerBounds(int position){
-    	int p = position;
-    	if(p <= BOUNDS_SIZE - BOUNDS_SIZE){
+    	//int p = position;
+    	if(position <= BOUNDS_SIZE - BOUNDS_SIZE)
+    	{
     		return false;
     	}
-    	else{
+    	else
+    	{
     		return true;
     	}
     }
     
-    public boolean checkUpperBounds(int position){
-    	int p = position;
-    	if(p >= BOUNDS_SIZE - PADDLE_HEIGHT){
+    public boolean checkUpperBounds(int position)
+    {
+    	if(position >= BOUNDS_SIZE - PADDLE_HEIGHT)
+    	{
     		return false;
     	}
-    	else{
+    	else
+    	{
     		return true;
     	}
     }
     
-    public boolean checkBallUpperBounds(int position){
-    	int p = position;
-    	if(p >= BOUNDS_SIZE - OBJ_SIZE){
+    public boolean checkBallUpperBounds(int position)
+    {
+    	//int p = position;
+    	if(position >= BOUNDS_SIZE - OBJ_SIZE)
+    	{
     		return false;
     	}
-    	else{
+    	else
+    	{
     		return true;
     	}
     }
     
-    public void moveEnemyPaddle(){
-        if(yEnemyPaddle < yBall){
+    public void moveEnemyPaddle()
+    {
+        if(yEnemyPaddle < yBall)
+        {
         	moveEnemyPaddleDown();
         }
-        else if(yEnemyPaddle > yBall){
+        
+        else if(yEnemyPaddle > yBall)
+        {
         	moveEnemyPaddleUp();
         }
-        else{
-        	// Do nothing
-        }
     }
     
-    public void moveBall(){
-    	xBall += ballDirection;
-    	boolean upperBound = checkBallUpperBounds(yBall);
-    	boolean lowerBound = checkLowerBounds(yBall);
-    	if(waitBallMove == false){
-	    	if(upperBound == false){
-	    		ballYDirection = -OBJ_SIZE;
-	    		waitBallMove = true;
-	    	}
-	    	else if(lowerBound == false){
-	    		ballYDirection = OBJ_SIZE;
-	    		waitBallMove = true;
-	    	}
-	    	else{
-	    		// Do nothing
-	    	}
+    public void moveBall()
+    {	
+    	//hit top or bottom
+    	if(yBall < 0 || yBall > HEIGHT - OBJ_SIZE) 
+    	{
+    		yBallDirection = -yBallDirection;
     	}
-    	else{
-    		waitBallMove = false;
-    	}
-    	yBall += ballYDirection;
-    	
-    }
-    
-    public void setYBall(){
-    	Random ran = new Random();
-        int randNum = ran.nextInt(3);
-        System.out.println(randNum);
-        if(randNum == 0){
-        	ballYDirection = -OBJ_SIZE;
-        }
-        else if(randNum == 1){
-        	ballYDirection = OBJ_SIZE;
-        }
-        else{
-        	ballYDirection = 0;
-        }
-    }
-    
-    public void checkBall(){
-    	if(xBall == BOUNDS_SIZE - OBJ_SIZE){
-    		score++;
-    		resetBall = true;
-    	}
-    	else if(xBall == BOUNDS_SIZE - BOUNDS_SIZE){
+    			
+    	//hit left
+    	if(xBall < 0) 
+    	{
     		enemyScore++;
-    		resetBall = true;
+    		xBallDirection = -xBallDirection;
     	}
-    	else{
-    		// Do nothing
+    		
+    	//hit right
+    	if(xBall + OBJ_SIZE > WIDTH) 
+    	{	
+    		score++;
+    		xBallDirection = -xBallDirection;
     	}
-    	if(xBall == xPaddle + OBJ_SIZE){
-    		if(yBall == yPaddle || yBall == yPaddle + OBJ_SIZE){
-    			ballDirection = -ballDirection;
-    			System.out.println("Hit");
-    			setYBall();
-    		}
-    		else{
-    			// Do nothing
-    		}
-    	}
-    	else if(xBall == xEnemyPaddle - OBJ_SIZE){
-    		if(yBall == yEnemyPaddle || yBall == yEnemyPaddle + OBJ_SIZE){
-    			ballDirection = -ballDirection;
-    			System.out.println("Enemy Hit");
-    			setYBall();
-    		}
-    		else{
-    			// Do nothing
+    	
+    	//hit paddles
+    	if(xBall - OBJ_SIZE <= 0 && xBallDirection < 0)
+    	{
+    		if(yBall - OBJ_SIZE <= yPaddle && yBall >= yPaddle - OBJ_SIZE)
+    		{
+    			xBallDirection = -xBallDirection;
     		}
     	}
-    	else{
-    		// Do nothing
+    		
+    	if(xBall + OBJ_SIZE >= BOUNDS_SIZE && xBallDirection > 0)
+    	{
+    		if(yBall + OBJ_SIZE >= yEnemyPaddle && yBall <= yEnemyPaddle + OBJ_SIZE)
+    		{
+    			xBallDirection = -xBallDirection;
+    		}
     	}
+    	
+    	xBall += xBallDirection;
+    	yBall += yBallDirection;
+    }
+
+    public void setYBall()
+    {
+    	int randNum = (int) (Math.random() * 101) / 2;
+    	
+    	if(randNum < 50)
+        {
+        	yBallDirection = -OBJ_SIZE;
+        }
+        else 
+        {
+        	yBallDirection = OBJ_SIZE;
+        }
     }
     
-    public void resetBall(){
+    public void resetBall()
+    {
     	xBall = BOUNDS_SIZE/2;
 		yBall = BOUNDS_SIZE/2;
 		resetBall = false;
     }
     
-    public void paint(Graphics g){
-        super.paint(g);
+    public void paint(Graphics g)
+    {
+    	super.paint(g);
         Graphics2D G = (Graphics2D) g;
-        G.setColor(Color.WHITE); // Background color
-        G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
-        G.setColor(Color.BLACK); // Paddle color
-        G.fillRect(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT); // Creates enemy paddle on screen
-        G.setColor(Color.RED); // Paddle color
-        G.fillRect(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT); // Creates enemy paddle on screen
-        G.setColor(Color.GREEN); // Ball color
-        G.fillRect(xBall, yBall, OBJ_SIZE, OBJ_SIZE); // Creates ball on screen
-        G.setColor(Color.BLUE); // The on-screen text color
+        
+        G.setPaint(Color.WHITE);
+        G.fillRect(0, 0, 512, 512);
+        
+        if(resetBall)
+        {
+        	yPaddle = HEIGHT / 2;
+			yEnemyPaddle = yPaddle;
+		}
+		
+		//user paddle
+		Rectangle2D ourPaddle = new Rectangle(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+		G.setPaint(Color.GREEN);
+		G.fill(ourPaddle);
+		
+		//enemy paddle
+		Rectangle2D enemyPaddle = new Rectangle(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+		G.setPaint(Color.RED);
+		G.fill(enemyPaddle);
+		
+		//ball
+		Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
+		G.setPaint(Color.MAGENTA);
+		G.fill(ball);
+		
+		//directions and scores
+		G.setPaint(Color.BLACK);
         G.drawString("Use the arrow keys to move up and down!", 156, 156);
         G.drawString("Score: " + String.valueOf(score), 214, 166);
         G.drawString("Enemy Score: " + String.valueOf(enemyScore), 204, 176);
         G.dispose();
     }
     
-	public static void main(String[] args) throws InterruptedException{
+    public PaddleGame() throws InterruptedException
+    { 
+    	addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+    }
+    
+	public static void main(String[] args) throws InterruptedException
+	{
         JFrame f = new JFrame("Paddle Game");
-        final PaddleGame w = new PaddleGame();
         final int BORDER_WIDTH = 16; //This number allow the game itself to be 512 x 512
         final int BORDER_HEIGHT = 39; //This number allow the game itself to be 512 x 512
         f.setSize(BOUNDS_SIZE + BORDER_WIDTH, BOUNDS_SIZE + BORDER_HEIGHT); 
-        f.add(w);
-        f.setVisible(true);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //System.out.println(f.getContentPane().getSize());
-        while(true){
-        	f.addKeyListener(new KeyAdapter(){
-                @Override
-                public void keyPressed(KeyEvent e) {
-                	if(w.canMove == true){
-	                	if(e.getKeyCode() == 37){
-	                		//w.moveWormLeft();
-	                	}
-	                	else if(e.getKeyCode() == 38){
-	                		w.movePaddleUp();
-	                	}
-	                	else if(e.getKeyCode() == 39){
-	                		//w.moveWormRight();
-	                	}
-	                	else if(e.getKeyCode() == 40){
-	                		w.movePaddleDown();
-	                	}
-	                	else{}
-	                	w.canMove = false;
-                	}
-                	else{
-                		// Do nothing
-                	}
-                }
-            });
-        	w.moveEnemyPaddle();
-        	w.moveBall();
-        	if(w.resetBall == true){
-        		w.resetBall();
-        	}
-        	else{}
-        	w.checkBall();
-            w.repaint();
-            //w.checkBall();
-            Thread.sleep(100); // Affects movement speed
-            w.canMove = true;
+        
+        PaddleGame w = new PaddleGame();
+        f.setContentPane(w);
+		f.setResizable(false);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setVisible(true);
+		w.play();
+	}
+	
+	public void play() throws InterruptedException
+	{
+	    while(true)
+	    {
+	    	moveBall(); 
+	    	
+	    	if(Math.random() > .33) //some rng to make the game a bit more competitive
+	    	{
+	    		moveEnemyPaddle();
+	    	}
+	    	
+	        if(resetBall == true)
+	        {
+	        	resetBall();
+	        }
+	        
+	        repaint();
+	        Thread.sleep(20); // Affects movement speed
+	        canMove = true;
+	     }
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) 
+	{	
+		if(e.getKeyCode() == 38)
+        {
+            movePaddleUp();
         }
-    }
+        
+		else if(e.getKeyCode() == 40)
+        {
+        	movePaddleDown();
+        }
+            
+		canMove = false;
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {}
+
+	@Override
+	public void keyTyped(KeyEvent e) {}
 }
