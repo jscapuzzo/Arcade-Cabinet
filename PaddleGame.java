@@ -26,8 +26,8 @@ public class PaddleGame extends JPanel implements KeyListener
     
     private int xBall = BOUNDS_SIZE/2; // The x-position of the worm food
     private int yBall = BOUNDS_SIZE/2; // The y-position of the worm food
-    private int xBallDirection = 4;         // velocity of ball
-    private int yBallDirection = 8;
+    private int xBallDirection = 3;         // velocity of ball
+    private int yBallDirection = 6;
     private final int CHANGE = 16;
     
     int score = 0; // The player's score
@@ -72,9 +72,9 @@ public class PaddleGame extends JPanel implements KeyListener
     	}
     }
     
-    public boolean checkLowerBounds(int position){
-    	//int p = position;
-    	if(position <= BOUNDS_SIZE - BOUNDS_SIZE)
+    public boolean checkLowerBounds(int position)
+    {
+    	if(position <= 0)
     	{
     		return false;
     	}
@@ -125,7 +125,7 @@ public class PaddleGame extends JPanel implements KeyListener
     public void moveBall()
     {	
     	//hit top or bottom
-    	if(yBall < 0 || yBall > HEIGHT - OBJ_SIZE) 
+    	if(checkBallUpperBounds(yBall) == false || checkLowerBounds(yBall) == false) 
     	{
     		yBallDirection = -yBallDirection;
     	}
@@ -145,9 +145,9 @@ public class PaddleGame extends JPanel implements KeyListener
     	}
     	
     	//hit paddles
-    	if(xBall - OBJ_SIZE <= 0 && xBallDirection < 0) //check left paddle
+    	if(xBallDirection < 0 && xBall - OBJ_SIZE <= 0) //check left paddle
     	{
-    		if(yBall - OBJ_SIZE <= yPaddle && yBall >= yPaddle - OBJ_SIZE)
+    		if(yBall - OBJ_SIZE <= yPaddle && yBall >= yPaddle - OBJ_SIZE) //ball is 
     		{
     			xBallDirection = -xBallDirection;
     		}
@@ -184,8 +184,8 @@ public class PaddleGame extends JPanel implements KeyListener
     public void resetBall()
     {
     	xBall = BOUNDS_SIZE/2;
-	yBall = BOUNDS_SIZE/2;
-	resetBall = false;
+    	yBall = BOUNDS_SIZE/2;
+    	resetBall = false;
     }
     
     public void paint(Graphics g)
@@ -193,38 +193,39 @@ public class PaddleGame extends JPanel implements KeyListener
     	super.paint(g);
         Graphics2D G = (Graphics2D) g;
         
-        G.setPaint(Color.WHITE);
+        G.setPaint(Color.WHITE); //set background to be white
         G.fillRect(0, 0, 512, 512);
         
-        if(resetBall)
+        if(resetBall) //beginning of game
         {
         	yPaddle = HEIGHT / 2;
-		yEnemyPaddle = yPaddle;
-	}
+        	yEnemyPaddle = yPaddle;
+        }
 		
-	//user paddle
-	Rectangle2D ourPaddle = new Rectangle(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-	G.setPaint(Color.GREEN);
-	G.fill(ourPaddle);
+        //user paddle
+        Rectangle2D ourPaddle = new Rectangle(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+        G.setPaint(Color.GREEN);
+        G.fill(ourPaddle);
 		
-	//enemy paddle
-	Rectangle2D enemyPaddle = new Rectangle(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-	G.setPaint(Color.RED);
-	G.fill(enemyPaddle);
+        //enemy paddle
+        Rectangle2D enemyPaddle = new Rectangle(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+        G.setPaint(Color.RED);
+        G.fill(enemyPaddle);
 		
-	//ball
-	Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
-	G.setPaint(Color.MAGENTA);
-	G.fill(ball);
+        //ball or whatever sphere we want
+        Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
+        G.setPaint(Color.MAGENTA);
+        G.fill(ball);
 		
-	//directions and scores
-	G.setPaint(Color.BLACK);
+        //directions and scores
+        G.setPaint(Color.BLACK);
         G.drawString("Use the arrow keys to move up and down!", 156, 156);
         G.drawString("Score: " + String.valueOf(score), 214, 166);
         G.drawString("Enemy Score: " + String.valueOf(enemyScore), 204, 176);
         G.dispose();
     }
     
+    //constructor does some interaction stuff
     public PaddleGame()
     { 
     	addKeyListener(this);
@@ -247,47 +248,48 @@ public class PaddleGame extends JPanel implements KeyListener
         
        	PaddleGame w = new PaddleGame();
        	f.setContentPane(w);
-	f.setResizable(false);
-	f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	f.setVisible(true);
-	w.play();
+       	f.setResizable(false);
+       	f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+       	f.setVisible(true);
+       	w.play();
      }
 	
      public void play() throws InterruptedException
      {
-	while(true)
-	{
-	     moveBall(); 
+    	 while(true)
+    	 {
+    		 moveBall(); 
 	    	
-	     if(Math.random() > .33) //some rng to make the game a bit more competitive
-	     {
-	    	moveEnemyPaddle();
-	     }
+    		 if(Math.random() > .33) //some rng to make the game a bit more competitive
+    		 {
+    			 moveEnemyPaddle();
+    		 }
 	    	
-	     if(resetBall == true)
-	     {
-	        resetBall();
-	     }
+    		 if(resetBall == true)
+    		 {
+    			 resetBall();
+    		 }
 	        
-	     repaint();
-	     Thread.sleep(20); // Affects movement speed
-	}
+    		 repaint();
+    		 Thread.sleep(20); // Affects movement speed
+    	 }
      }
 
      @Override
      public void keyPressed(KeyEvent e) 
      {	
-	if(e.getKeyCode() == 38)
-        {
+    	 if(e.getKeyCode() == 38) //'up' arrow key
+    	 {
             movePaddleUp();
-        }
-        else if(e.getKeyCode() == 40)
-        {
-             movePaddleDown();
-        }
+    	 }
+    	 else if(e.getKeyCode() == 40) //'down' arrow key
+    	 {
+    		 movePaddleDown();
+    	 }
      }
       
      //following methods do nothing
+     //need to be here for interface implementation 
      @Override
      public void keyReleased(KeyEvent e) {}
 	
