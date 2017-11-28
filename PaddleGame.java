@@ -1,7 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -11,7 +12,7 @@ import java.awt.event.KeyListener;
  *
  */
 @SuppressWarnings("serial")
-public class PaddleGame extends JPanel implements KeyListener
+public class PaddleGame extends JPanel implements KeyListener, ActionListener
 {
     static final int OBJ_SIZE = 32; // The size of the worm and worm ford
     static final int PADDLE_HEIGHT = OBJ_SIZE * 2;
@@ -202,20 +203,17 @@ public class PaddleGame extends JPanel implements KeyListener
         	yEnemyPaddle = yPaddle;
         }
 		
-        //user paddle
-        Rectangle2D ourPaddle = new Rectangle(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-        G.setPaint(Color.GREEN);
-        G.fill(ourPaddle);
-		
-        //enemy paddle
-        Rectangle2D enemyPaddle = new Rectangle(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-        G.setPaint(Color.RED);
-        G.fill(enemyPaddle);
-		
         //ball or whatever sphere we want
         Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
         G.setPaint(Color.MAGENTA);
         G.fill(ball);
+        
+        //user paddle
+        G.setPaint(Color.BLACK);
+        G.fillRect(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+		
+        //enemy paddle
+        G.fillRect(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
 		
         //directions and scores
         G.setPaint(Color.BLACK);
@@ -226,21 +224,24 @@ public class PaddleGame extends JPanel implements KeyListener
     }
     
     //constructor does some interaction stuff
-    public PaddleGame()
-    { 
+    public PaddleGame() throws InterruptedException
+    {
+    	//sets the gui to read keystrokes and make it the focus
     	addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        
+        //the following was grabbed off Oracle's swing tutorial online
+        //essentially it just automatically starts the game with a delay and sets the speed of the game
+        Timer timer = new Timer(15, this);
+        timer.setInitialDelay(3000);
+        timer.start();
     }
     
     //may or may not need exception here, but i do not have ide open. 
     public static void main(String[] args) throws InterruptedException
     {
        	JFrame f = new JFrame("Paddle Game");
-	
-	/********
-	* To do: need to figure out spacing, and how to get GUI integrated
-	*/
 	
        	final int BORDER_WIDTH = 16; //This number allow the game itself to be 512 x 512
        	final int BORDER_HEIGHT = 39; //This number allow the game itself to be 512 x 512
@@ -251,28 +252,24 @@ public class PaddleGame extends JPanel implements KeyListener
        	f.setResizable(false);
        	f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
        	f.setVisible(true);
-       	w.play();
      }
 	
-     public void play() throws InterruptedException
+     public void play()
      {
-    	 while(true)
-    	 {
-    		 moveBall(); 
+    	 moveBall(); 
 	    	
-    		 if(Math.random() > .33) //some rng to make the game a bit more competitive
-    		 {
-    			 moveEnemyPaddle();
-    		 }
-	    	
-    		 if(resetBall == true)
-    		 {
-    			 resetBall();
-    		 }
-	        
-    		 repaint();
-    		 Thread.sleep(20); // Affects movement speed
-    	 }
+		 if(Math.random() > .33) //some rng to make the game a bit more competitive
+		 {
+			 moveEnemyPaddle();
+		 }
+    	
+		 if(resetBall == true)
+		 {
+			 resetBall();
+		 }
+        
+		 repaint();
+		 //Thread.sleep(20); // Affects movement speed
      }
 
      @Override
@@ -295,4 +292,11 @@ public class PaddleGame extends JPanel implements KeyListener
 	
      @Override
      public void keyTyped(KeyEvent e) {}
- }
+     
+     //allows game to be played in separate GUI
+     @Override
+     public void actionPerformed(ActionEvent e) 
+     {
+    	 play();
+     }
+}

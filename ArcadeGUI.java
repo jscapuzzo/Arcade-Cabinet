@@ -9,6 +9,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -30,6 +32,7 @@ public class ArcadeGUI {
 	private JPanel panel;
 	private JToolBar themeToolBar;
 	private JToolBar gameChoiceToolBar;
+	private Object lastAdded;
 	/**
 	 * Launch the application.
 	 */
@@ -48,9 +51,19 @@ public class ArcadeGUI {
 
 	/**
 	 * Create the application.
+	 * @throws InterruptedException 
 	 */
-	public ArcadeGUI() {
+	public ArcadeGUI() throws InterruptedException {
+		
 		initialize();
+		//PaddleGame w = new PaddleGame();
+		WormGame w = new WormGame();
+		gameFrame.setTitle("Paddle Game");
+		gameFrame.setFocusable(true);
+		gameFrame.requestFocus();
+		gameFrame.setFocusTraversalKeysEnabled(false);
+		gameFrame.addKeyListener(w);
+		gameFrame.add(w);
 	}
 
 	/**
@@ -66,6 +79,7 @@ public class ArcadeGUI {
 		desktop.setLayout(new BorderLayout(0,0));
 		
 		gameFrame = new JInternalFrame("Main Menu");
+		desktop.add(gameFrame);
 		//frame.getContentPane().add(gameFrame, BorderLayout.CENTER);
 		
 		themeToolBar = new JToolBar();
@@ -92,14 +106,18 @@ public class ArcadeGUI {
 	private void initGameFrame()
 	{
 		//gameFrame.setResizable(true);
+		//desktop.add(gameFrame);
+		//gameFrame.addKeyListener();
+        gameFrame.setFocusable(true);
+        gameFrame.setFocusTraversalKeysEnabled(false);
+		
 		gameFrame.setPreferredSize(new Dimension(528, 551));
 		gameFrame.setMaximumSize(new Dimension(528, 551));
 		gameFrame.setMinimumSize(new Dimension(528, 551));
 		gameFrame.setMaximizable(true);
 		//gameFrame.add(panel);
 		gameFrame.setVisible(true);
-		desktop.add(gameFrame);
-		frame.getContentPane().add(desktop, BorderLayout.CENTER);
+		frame.getContentPane().add(gameFrame, BorderLayout.CENTER);
 	}
 	
 	private void initToolBars()
