@@ -20,13 +20,13 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     static final int WIDTH = BOUNDS_SIZE + 16;
     static final int HEIGHT = BOUNDS_SIZE + 39;
     
-    static int xPaddle = 0; // The x-position of the worm
-    static int yPaddle = 0; // The y-position of the worm
-    static int xEnemyPaddle = BOUNDS_SIZE; // The x-position of the worm
-    static int yEnemyPaddle = 0; // The y-position of the worm
+    static int xPaddle = 0; // The x-position of the paddle
+    static int yPaddle = 0; // The y-position of the paddle
+    static int xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
+    static int yEnemyPaddle = 0; // The y-position of the enemy paddle
     
-    private int xBall = BOUNDS_SIZE/2; // The x-position of the worm food
-    private int yBall = BOUNDS_SIZE/2; // The y-position of the worm food
+    private int xBall = BOUNDS_SIZE/2; // The x-position of the ball
+    private int yBall = BOUNDS_SIZE/2; // The y-position of the ball
     private int xBallDirection = 3;         // velocity of ball
     private int yBallDirection = 6;
     private final int CHANGE = 16;
@@ -135,31 +135,32 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	if(xBall < 0) 
     	{
     		enemyScore++;
-    		xBallDirection = -xBallDirection;
+    		resetBall = true;
     	}
     		
     	//hit right
     	if(xBall + OBJ_SIZE > WIDTH) 
     	{	
     		score++;
-    		xBallDirection = -xBallDirection;
+    		resetBall = true;
     	}
     	
     	//hit paddles
-    	if(xBallDirection < 0 && xBall - OBJ_SIZE <= 0) //check left paddle
+    	if(xBallDirection < 0 && xBall <= OBJ_SIZE) //check left paddle
     	{
-    		if(yBall - OBJ_SIZE <= yPaddle && yBall >= yPaddle - OBJ_SIZE) //ball is 
+    		if(yBall + OBJ_SIZE>= yPaddle && yBall <= yPaddle + PADDLE_HEIGHT) //ball is 
     		{
     			xBallDirection = -xBallDirection;
     		}
     	}
     		
-    	if(xBall + OBJ_SIZE >= BOUNDS_SIZE && xBallDirection > 0) //check right paddle
+    	if(xBallDirection > 0 && xBall + OBJ_SIZE >= WIDTH - OBJ_SIZE) //check right paddle
     	{
-    		if(yBall + OBJ_SIZE >= yEnemyPaddle && yBall <= yEnemyPaddle + OBJ_SIZE)
+    		if(yBall + OBJ_SIZE >= yEnemyPaddle && yBall <= yEnemyPaddle + PADDLE_HEIGHT)
     		{
     			xBallDirection = -xBallDirection;
     		}
+    		//xBallDirection = -xBallDirection;
     	}
     	
     	xBall += xBallDirection;
@@ -187,6 +188,14 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	xBall = BOUNDS_SIZE/2;
     	yBall = BOUNDS_SIZE/2;
     	resetBall = false;
+    	try        
+    	{
+    	    Thread.sleep(500);
+    	} 
+    	catch(InterruptedException ex) 
+    	{
+    	    Thread.currentThread().interrupt();
+    	}
     }
     
     public void paint(Graphics g)
@@ -234,7 +243,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
         //the following was grabbed off Oracle's swing tutorial online
         //essentially it just automatically starts the game with a delay and sets the speed of the game
         Timer timer = new Timer(15, this);
-        timer.setInitialDelay(3000);
+        timer.setInitialDelay(1500);
         timer.start();
     }
     
