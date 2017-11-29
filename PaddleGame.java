@@ -20,16 +20,17 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     static final int WIDTH = BOUNDS_SIZE + 16;
     static final int HEIGHT = BOUNDS_SIZE + 39;
     
-    static int xPaddle = 0; // The x-position of the paddle
-    static int yPaddle = 0; // The y-position of the paddle
-    static int xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
-    static int yEnemyPaddle = 0; // The y-position of the enemy paddle
+    private static int xPaddle = 0; // The x-position of the paddle
+    private static int yPaddle = 0; // The y-position of the paddle
+    private static int xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
+    private static int yEnemyPaddle = 0; // The y-position of the enemy paddle
     
     private int xBall = BOUNDS_SIZE/2; // The x-position of the ball
     private int yBall = BOUNDS_SIZE/2; // The y-position of the ball
     private int xBallDirection = 3;         // velocity of ball
     private int yBallDirection = 6;
     private final int CHANGE = 16;
+    private Timer timer;
     
     int score = 0; // The player's score
     int enemyScore = 0;
@@ -235,6 +236,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     //constructor does some interaction stuff
     public PaddleGame() throws InterruptedException
     {
+    	reset();
     	//sets the gui to read keystrokes and make it the focus
     	addKeyListener(this);
         setFocusable(true);
@@ -242,7 +244,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
         
         //the following was grabbed off Oracle's swing tutorial online
         //essentially it just automatically starts the game with a delay and sets the speed of the game
-        Timer timer = new Timer(15, this);
+        timer = new Timer(15, this);
         timer.setInitialDelay(1500);
         timer.start();
     }
@@ -293,7 +295,18 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     		 movePaddleDown();
     	 }
      }
-      
+     
+     private void reset()
+     {
+    	    xPaddle = 0; // The x-position of the paddle
+    	    yPaddle = 0; // The y-position of the paddle
+    	    xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
+    	    yEnemyPaddle = 0; // The y-position of the enemy paddle
+    	    score = 0; // The player's score
+    	    enemyScore = 0;
+    	    resetBall();
+     }
+     
      //following methods do nothing
      //need to be here for interface implementation 
      @Override
@@ -307,5 +320,10 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
      public void actionPerformed(ActionEvent e) 
      {
     	 play();
+     }
+     
+     public void stop()
+     {
+    	 timer.stop();
      }
 }

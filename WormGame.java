@@ -16,6 +16,7 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
     int xFood = 64; // The x-position of the worm food
     int yFood = 64; // The y-position of the worm food
     int score = 0; // The player's score
+    private Timer timer;
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
     
     public void moveWormRight()
@@ -127,7 +128,7 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
         
         //the following was grabbed off Oracle's swing tutorial online
         //essentially it just automatically starts the game with a delay and sets the speed of the game
-        Timer timer = new Timer(15, this);
+        timer = new Timer(15, this);
         //timer.setInitialDelay(3000);
         timer.start();
     }
@@ -184,5 +185,10 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
     public void actionPerformed(ActionEvent e) 
     {
     	play();
+    }
+    
+    public void stop()
+    {
+    	timer.stop();
     }
 }
