@@ -11,11 +11,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyVetoException;
 
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JToolBar;
@@ -32,7 +34,8 @@ public class ArcadeGUI {
 	private JPanel panel;
 	private JToolBar themeToolBar;
 	private JToolBar gameChoiceToolBar;
-	private Object lastAdded;
+	private PaddleGame game1;
+	private WormGame game2;
 	/**
 	 * Launch the application.
 	 */
@@ -56,20 +59,14 @@ public class ArcadeGUI {
 	public ArcadeGUI() throws InterruptedException {
 		
 		initialize();
-		//PaddleGame w = new PaddleGame();
-		WormGame w = new WormGame();
-		gameFrame.setTitle("Paddle Game");
-		gameFrame.setFocusable(true);
-		gameFrame.requestFocus();
-		gameFrame.setFocusTraversalKeysEnabled(false);
-		gameFrame.addKeyListener(w);
-		gameFrame.add(w);
+		
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws InterruptedException 
 	 */
-	private void initialize() 
+	private void initialize() throws InterruptedException 
 	{
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -103,11 +100,12 @@ public class ArcadeGUI {
 		frame.setVisible(true);
 	}
 	
-	private void initGameFrame()
+	private void initGameFrame() throws InterruptedException
 	{
 		//gameFrame.setResizable(true);
 		//desktop.add(gameFrame);
 		//gameFrame.addKeyListener();
+		gameFrame = new JInternalFrame();
         gameFrame.setFocusable(true);
         gameFrame.setFocusTraversalKeysEnabled(false);
 		
@@ -179,13 +177,13 @@ public class ArcadeGUI {
 		lblSelectAGame.setFont(new Font("Arial", Font.BOLD, 15));
 		gameChoiceToolBar.add(lblSelectAGame);
 		
-		JRadioButton rdbtnGame1 = new JRadioButton("Game1");
+		JRadioButton rdbtnGame1 = new JRadioButton("Paddle Game");
 		rdbtnGame1.setToolTipText("Game1");
 		rdbtnGame1.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame1);
 		
-		JRadioButton rdbtnGame2 = new JRadioButton("Game2");
+		JRadioButton rdbtnGame2 = new JRadioButton("Worm Game");
 		rdbtnGame2.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame2);
@@ -196,30 +194,7 @@ public class ArcadeGUI {
 		gameChoiceToolBar.add(rdbtnGame3);
 		
 		JButton btnSubmitChoice = new JButton("Submit");
-		btnSubmitChoice.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-					SwingUtilities.updateComponentTreeUI(frame);  // update components
-					frame.pack();
-					//frame.setBounds(100, 100, 1130, 659);
-					frame.setLocationRelativeTo(null);
-					frame.setVisible(true);
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedLookAndFeelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		
 		btnSubmitChoice.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.addSeparator();
@@ -230,8 +205,82 @@ public class ArcadeGUI {
 		choiceGroup.add(rdbtnGame2);
 		choiceGroup.add(rdbtnGame3);
 		
+		btnSubmitChoice.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				if(rdbtnGame1.isSelected())
+				{
+					register(rdbtnGame1);
+				}
+				else if(rdbtnGame2.isSelected())
+				{
+					register(rdbtnGame2);
+				}
+			}
+		});
+
 		frame.getContentPane().add(themeToolBar, BorderLayout.LINE_START);
 		frame.getContentPane().add(gameChoiceToolBar, BorderLayout.LINE_END);
+	}
+	
+	private void register(JRadioButton button)
+	{
+		//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+		if(button.getText().equals("Paddle Game"))
+		{
+			try {
+				game1 = new PaddleGame();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			gameFrame.setTitle("Paddle Game");
+			gameFrame.setFocusable(true);
+			gameFrame.requestFocus();
+			gameFrame.setFocusTraversalKeysEnabled(false);
+			
+			if(game2 != null)
+			{
+				gameFrame.removeKeyListener(game2);
+				gameFrame.remove(game2);
+				game2.stop();
+			}
+			
+			gameFrame.addKeyListener(game1);
+			gameFrame.add(game1);
+			gameFrame.revalidate();
+			gameFrame.pack();
+			gameFrame.setVisible(true);
+		}	
+		else if(button.getText().equals("Worm Game"))
+		{
+			game2 = new WormGame();
+			//gameFrame.removeAll();
+			gameFrame.setVisible(false);
+			gameFrame.setTitle("Worm Game");
+			gameFrame.setFocusable(true);
+			gameFrame.requestFocusInWindow();
+			gameFrame.setFocusTraversalKeysEnabled(false);
+			
+			if(game1 != null)
+			{
+				gameFrame.removeKeyListener(game1);
+				gameFrame.remove(game1);
+				game1.stop();
+				//game1.removeAll();
+			}
+			
+			gameFrame.addKeyListener(game2);
+			gameFrame.add(game2);
+			gameFrame.revalidate();
+			gameFrame.pack();
+			gameFrame.setVisible(true);
+		}
+		//SwingUtilities.updateComponentTreeUI(frame);  // update components
+		//frame.pack();
+		//frame.setBounds(100, 100, 1130, 659);
+		//frame.setLocationRelativeTo(null);
+		//frame.setVisible(true); 
 	}
 
 }
