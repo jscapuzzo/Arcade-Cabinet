@@ -7,17 +7,15 @@ import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.beans.PropertyVetoException;
 
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JToolBar;
@@ -25,27 +23,37 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 
-public class ArcadeGUI {
-
+public class ArcadeGUI 
+{
+	private static BorderLayout layoutDesk;
+	private static BorderLayout layoutFrame;
 	private JDesktopPane desktop;
 	private JFrame frame;
 	private JInternalFrame gameFrame;
-	private JPanel panel;
+	private JMenuBar menuBar;
 	private JToolBar themeToolBar;
 	private JToolBar gameChoiceToolBar;
 	private PaddleGame game1;
 	private WormGame game2;
+	
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
+	public static void main(String[] args) 
+	{
+		EventQueue.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
+				try 
+				{
 					ArcadeGUI window = new ArcadeGUI();
 					window.frame.setVisible(true);
-				} catch (Exception e) {
+				} 
+				catch (Exception e) 
+				{
 					e.printStackTrace();
 				}
 			}
@@ -56,10 +64,9 @@ public class ArcadeGUI {
 	 * Create the application.
 	 * @throws InterruptedException 
 	 */
-	public ArcadeGUI() throws InterruptedException {
-		
+	public ArcadeGUI() throws InterruptedException 
+	{	
 		initialize();
-		
 	}
 
 	/**
@@ -68,56 +75,77 @@ public class ArcadeGUI {
 	 */
 	private void initialize() throws InterruptedException 
 	{
+		layoutFrame = new BorderLayout(50, 50);
+		layoutDesk = new BorderLayout(0, 0);
+		
 		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(50, 50));
+		frame.getContentPane().setLayout(layoutFrame);
 		
 		desktop = new JDesktopPane();
-		desktop.setLayout(new BorderLayout(0,0));
+		desktop.setLayout(layoutDesk);
 		
 		gameFrame = new JInternalFrame("Main Menu");
-		desktop.add(gameFrame);
-		//frame.getContentPane().add(gameFrame, BorderLayout.CENTER);
+		//desktop.add(gameFrame);
+		frame.getContentPane().add(gameFrame, layoutFrame.CENTER);
 		
 		themeToolBar = new JToolBar();
 		themeToolBar.setFont(new Font("Arial", Font.PLAIN, 15));
 		themeToolBar.setOrientation(SwingConstants.VERTICAL);
 		//themeToolBar.setBounds(23, 60, 136, 223);
 		
-		
 		gameChoiceToolBar = new JToolBar();
 		gameChoiceToolBar.setOrientation(SwingConstants.VERTICAL);
 		gameChoiceToolBar.setFont(new Font("Arial", Font.PLAIN, 15));
 		//gameChoiceToolBar.setBounds(23, 276, 136, 240);
 		
+		menuBar = new JMenuBar();
+		menuBar.setFont(new Font("Arial", Font.BOLD, 12));
+		
 		initGameFrame();
 		initToolBars();
+		initMenuBar();
 		
-		//frame.setMinimumSize(new Dimension(528, 551));
 		frame.pack();
 		frame.setLocationRelativeTo(null);
-		//frame.setMinimumSize(null);
 		frame.setVisible(true);
 	}
 	
+	/**
+	 * Initialize the menu bar that allows users to see scores and instructions.
+	 */
+	private void initMenuBar() 
+	{
+		JMenu help = new JMenu("Help");
+		menuBar.setMaximumSize(new Dimension(551, 200));
+		menuBar.add(help);
+		menuBar.setVisible(true);
+		
+		layoutFrame.setVgap(10);
+		frame.getContentPane().add(menuBar, layoutFrame.NORTH);
+		
+	}
+
+	/**
+	 * Initialize the frame where games are played.
+	 * @throws InterruptedException
+	 */
 	private void initGameFrame() throws InterruptedException
 	{
-		//gameFrame.setResizable(true);
-		//desktop.add(gameFrame);
-		//gameFrame.addKeyListener();
-		gameFrame = new JInternalFrame();
-        gameFrame.setFocusable(true);
+		gameFrame.setFocusable(true);
         gameFrame.setFocusTraversalKeysEnabled(false);
 		
 		gameFrame.setPreferredSize(new Dimension(528, 551));
 		gameFrame.setMaximumSize(new Dimension(528, 551));
 		gameFrame.setMinimumSize(new Dimension(528, 551));
 		gameFrame.setMaximizable(true);
-		//gameFrame.add(panel);
 		gameFrame.setVisible(true);
-		frame.getContentPane().add(gameFrame, BorderLayout.CENTER);
+		frame.getContentPane().add(gameFrame, layoutFrame.CENTER);
 	}
 	
+	/**
+	 * Initialize the toolbars that allow users to switch themes and games
+	 */
 	private void initToolBars()
 	{
 		JLabel lblThemeLabel = new JLabel("Select a theme:");
@@ -168,6 +196,7 @@ public class ArcadeGUI {
 				}
 			}
 		});
+		
 		themeToolBar.addSeparator();
 		themeToolBar.addSeparator();
 		themeToolBar.add(btnSubmitTheme);
@@ -206,7 +235,8 @@ public class ArcadeGUI {
 		choiceGroup.add(rdbtnGame3);
 		
 		btnSubmitChoice.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) 
+			{
 				if(rdbtnGame1.isSelected())
 				{
 					register(rdbtnGame1);
@@ -218,19 +248,27 @@ public class ArcadeGUI {
 			}
 		});
 
-		frame.getContentPane().add(themeToolBar, BorderLayout.LINE_START);
-		frame.getContentPane().add(gameChoiceToolBar, BorderLayout.LINE_END);
+		themeToolBar.setBorder(new EmptyBorder(0, 16, 0, 16));
+		gameChoiceToolBar.setBorder(new EmptyBorder(0, 16, 0, 16));
+		frame.getContentPane().add(themeToolBar, layoutFrame.WEST);
+		frame.getContentPane().add(gameChoiceToolBar, layoutFrame.EAST);
 	}
 	
+	/**
+	 * Helper method that switches games.
+	 * Created to create a cleaner initToolBars() method 
+	 * @param button
+	 */
 	private void register(JRadioButton button)
 	{
-		//UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 		if(button.getText().equals("Paddle Game"))
 		{
-			try {
+			try 
+			{
 				game1 = new PaddleGame();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+			} 
+			catch (InterruptedException e) 
+			{
 				e.printStackTrace();
 			}
 			
@@ -247,15 +285,14 @@ public class ArcadeGUI {
 			}
 			
 			gameFrame.addKeyListener(game1);
-			gameFrame.add(game1);
+			gameFrame.getContentPane().add(game1);
 			gameFrame.revalidate();
 			gameFrame.pack();
 			gameFrame.setVisible(true);
-		}	
+		}
 		else if(button.getText().equals("Worm Game"))
 		{
 			game2 = new WormGame();
-			//gameFrame.removeAll();
 			gameFrame.setVisible(false);
 			gameFrame.setTitle("Worm Game");
 			gameFrame.setFocusable(true);
@@ -267,20 +304,14 @@ public class ArcadeGUI {
 				gameFrame.removeKeyListener(game1);
 				gameFrame.remove(game1);
 				game1.stop();
-				//game1.removeAll();
 			}
 			
 			gameFrame.addKeyListener(game2);
-			gameFrame.add(game2);
+			gameFrame.getContentPane().add(game2);
 			gameFrame.revalidate();
 			gameFrame.pack();
 			gameFrame.setVisible(true);
 		}
-		//SwingUtilities.updateComponentTreeUI(frame);  // update components
-		//frame.pack();
-		//frame.setBounds(100, 100, 1130, 659);
-		//frame.setLocationRelativeTo(null);
-		//frame.setVisible(true); 
 	}
 
 }
