@@ -1,5 +1,6 @@
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.GridLayout;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -9,6 +10,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -116,11 +118,43 @@ public class ArcadeGUI
 	 */
 	private void initMenuBar() 
 	{
-		JMenu help = new JMenu("Help");
-		menuBar.setMaximumSize(new Dimension(551, 200));
-		menuBar.add(help);
-		menuBar.setVisible(true);
+		JMenu fileMenu = new JMenu("File");
+		 
+		JMenuItem help = new JMenuItem("Help");
+		help.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				System.out.println("b");
+				JFrame helpBox = new JFrame("How to Play");
+				helpBox.setSize(300, 300);
+				helpBox.setLocationRelativeTo(null);
+				helpBox.setResizable(false);
+				helpBox.setVisible(true);
+			}
+		});
 		
+		JMenuItem highScore = new JMenuItem("High Scores");
+		highScore.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
+				System.out.println("a");
+				JFrame highScoreBox = new JFrame("High Scores");
+				highScoreBox.setSize(300, 300);
+				highScoreBox.setLocationRelativeTo(null);
+				highScoreBox.setResizable(false);
+				highScoreBox.setVisible(true);
+			}
+		});
+		
+		
+		fileMenu.add(help);
+		fileMenu.add(highScore);
+		fileMenu.setVisible(true);
+		
+		menuBar.add(fileMenu);
+		menuBar.setMaximumSize(new Dimension(551, 200));
 		layoutFrame.setVgap(10);
 		frame.getContentPane().add(menuBar, layoutFrame.NORTH);
 		
