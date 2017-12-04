@@ -11,10 +11,8 @@ public class TetrisBlock
 	private int[][] coordinates;
 	private String blockType; 
 
-    private TetrisBlock block; 
-
     /**
-     * Parameterized constructor. Makes a tetris block from input.
+     * Parameterized constructor. Makes a Tetris block from input.
      * @param coordinates
      * @param type
      */
@@ -29,8 +27,7 @@ public class TetrisBlock
      */
     public TetrisBlock()
     {
-        coordinates = new int[4][2];
-        block = createNullBlock();
+        createNullBlock();
     }
 
     public String getBlockType() 
@@ -38,7 +35,7 @@ public class TetrisBlock
         return blockType;
     }
 
-    public TetrisBlock createRandomBlock()
+    public static TetrisBlock createRandomBlock()
     {
         int x = (int) Math.random() * 7 + 1;
         
@@ -82,7 +79,7 @@ public class TetrisBlock
     
     public static TetrisBlock rotateLeft(TetrisBlock t) 
     {
-        if (t.equals(createSquareBlock())) 
+        if(t.getBlockType() == "squareBlocK") 
         {
             return t;
         }
@@ -103,7 +100,7 @@ public class TetrisBlock
 
     public static TetrisBlock rotateRight(TetrisBlock t) 
     {
-        if (t.equals(createSquareBlock())) 
+        if(t.getBlockType() == "squareBlock") 
         {
             return t;
         }
@@ -121,15 +118,34 @@ public class TetrisBlock
         	return t;
         }
     }
+    /*
+     * The following mutator methods are to assist us in keeping our methods static. 
+     * The logic is that in our game we will be calling rotatemethods with a certain block,
+     * and we will not have access to mutate that block's variables for security reasons.
+     */
     
-    public void setXCoordinates(int row, int var)
+    private void setXCoordinates(int row, int var)
     {
     	coordinates[row][0] = var; 
     }
     
-    public void setYCoordinates(int row, int var)
+    private void setYCoordinates(int row, int var)
     {
     	coordinates[row][1] = var;
+    }
+    
+    /*
+     * Getters can be public, and will assist us in boundary checking
+     */
+    
+    public int getXCoordinates(int row)
+    {
+    	return coordinates[row][0];
+    }
+    
+    public int getYCoordinates(int row)
+    {
+    	return coordinates[row][1];
     }
     
     private static TetrisBlock createNullBlock()
@@ -242,5 +258,4 @@ public class TetrisBlock
 		String name = "mirrorLBlock";
 		return new TetrisBlock(coordinates, name);
 	}
-	
 }
