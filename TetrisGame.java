@@ -15,6 +15,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     
    
     private Timer timer;	//starts the actionlistener
+    private TetrisBlock block;
+    private int[][] board;
     
     int score = 0; 		//The player's score
 
@@ -69,12 +71,79 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     {
     	/**
     	 * Create piece
+    	 * 		done
     	 * Move piece
     	 * 		Conditions for piece: 1. Can it be rotated (due to boundaries)? 2. Can it move (due to boundaries)
+    	 * 			Framework made
     	 * Lock piece in.
+    	 * 		Framework made
     	 * Check if line is full or if we topped out
+    	 * 		Full line checked. Topped out can be implemented last
     	 * Re-loop
     	 */
+    	
+    	//create piece
+    	block = TetrisBlock.createRandomBlock();
+    	
+    }
+    
+    private void moveLeft()
+    {
+    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	
+    	if(inBounds == true)
+    	{
+    		//move block to the left
+    	}
+    }
+    
+    private void moveRight()
+    {
+    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	
+    	if(inBounds == true)
+    	{
+    		//move block to the right
+    	}
+    }    
+    
+    private void moveDown()
+    {
+    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	
+    	if(inBounds == true)
+    	{
+    		//move block down a line
+    	}
+    }
+    
+    private void lockPieceIn(TetrisBlock t)
+    {
+    	/**
+    	 * Initial board set up: Empty 2D array of ints (x-y coordinates)
+    	 * Following a collision (i.e. this is called from another method)
+    	 * 1. Get current board state
+    	 * 2. Add 1's where block is placed given piece shape
+    	 * 3. Redraw board (maybe respecting piece color idk)
+    	 */
+    }
+    
+    private void clearLine()
+    {
+    	/**
+    	 * 1. Get current board state
+    	 * 2. If row is all 1's then clear it.
+    	 * 3. Shift entire array down a row.
+    	 * 4. Repeat for all rows until a full row is not found
+    	 * 4. Update score with benefits for multiple line clears 
+    	 * 5. Redraw board
+    	 */
+    }
+    
+    private void addScore(int rows)
+    {
+    	score += Math.pow(2, rows);
+    	//repaint
     }
     
 	@Override
@@ -92,19 +161,23 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	{
 		if(e.getKeyCode() == 37)
         {
-        	//moveLeft();
-        }
+			//if checkLeftMove(position) == true
+        		//moveLeft();
+		}
         else if(e.getKeyCode() == 38)
         {
-        	//rotateRight
+        	//if canRotate == true
+        		//rotateRight
+        	
         }
         else if(e.getKeyCode() == 39)
         {
-        	//moveRight();
+        	//if checkRightMove(position) == true
+        		//moveRight();
         }
         else if(e.getKeyCode() == 40)
         {
-        	//rotateLeft();
+        	//moveDown
         }
 		
 		/*
