@@ -39,6 +39,7 @@ public class ArcadeGUI
 	private JToolBar gameChoiceToolBar;
 	private PaddleGame game1;
 	private WormGame game2;
+	private SpaceGame game3;
 	
 	/**
 	 * Launch the application.
@@ -251,7 +252,7 @@ public class ArcadeGUI
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame2);
 		
-		JRadioButton rdbtnGame3 = new JRadioButton("Game3");
+		final JRadioButton rdbtnGame3 = new JRadioButton("Space Game");
 		rdbtnGame3.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame3);
@@ -278,6 +279,10 @@ public class ArcadeGUI
 				else if(rdbtnGame2.isSelected())
 				{
 					register(rdbtnGame2);
+				}
+				else if(rdbtnGame3.isSelected())
+				{
+					register(rdbtnGame3);
 				}
 			}
 		});
@@ -318,6 +323,13 @@ public class ArcadeGUI
 				game2.stop();
 			}
 			
+			if(game3 != null)
+			{
+				gameFrame.removeKeyListener(game3);
+				gameFrame.remove(game3);
+				game3.stop();
+			}
+			
 			gameFrame.addKeyListener(game1);
 			gameFrame.getContentPane().add(game1);
 			gameFrame.revalidate();
@@ -340,8 +352,44 @@ public class ArcadeGUI
 				game1.stop();
 			}
 			
+			if(game3 != null)
+			{
+				gameFrame.removeKeyListener(game3);
+				gameFrame.remove(game3);
+				game3.stop();
+			}
+			
 			gameFrame.addKeyListener(game2);
 			gameFrame.getContentPane().add(game2);
+			gameFrame.revalidate();
+			gameFrame.pack();
+			gameFrame.setVisible(true);
+		}
+		else if(button.getText().equals("Space Game"))
+		{
+			game3 = new SpaceGame();
+			gameFrame.setVisible(false);
+			gameFrame.setTitle("Space Game");
+			gameFrame.setFocusable(true);
+			gameFrame.requestFocusInWindow();
+			gameFrame.setFocusTraversalKeysEnabled(false);
+			
+			if(game1 != null)
+			{
+				gameFrame.removeKeyListener(game1);
+				gameFrame.remove(game1);
+				game1.stop();
+			}
+			
+			if(game2 != null)
+			{
+				gameFrame.removeKeyListener(game2);
+				gameFrame.remove(game2);
+				game2.stop();
+			}
+			
+			gameFrame.addKeyListener(game3);
+			gameFrame.getContentPane().add(game3);
 			gameFrame.revalidate();
 			gameFrame.pack();
 			gameFrame.setVisible(true);
