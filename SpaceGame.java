@@ -11,6 +11,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 {
 	static final int OBJ_SIZE = 32; // The size of the ship and ship food
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    static final int numEnemies = 8;
     static int xShip = BOUNDS_SIZE/2; // The x-position of the ship
     static int yShip = BOUNDS_SIZE - OBJ_SIZE; // The y-position of the ship
     int xFood = BOUNDS_SIZE/2; // The x-position of the worm food
@@ -18,21 +19,30 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     int score = 0; // The player's score
     private Timer timer;
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
-    
+    SpaceObject bullet1;
+    SpaceObject bullet2;
+    SpaceObject bullet3;
+    SpaceObject bullet4;
+    SpaceObject player = new SpaceObject(1, 1, xShip, yShip);
+    SpaceObject barrier1;
+    SpaceObject barrier2;
+    SpaceObject barrier3;
+    SpaceObject barrier4;
+
     public void moveShipRight()
     {
-    	boolean inBounds = checkUpperBounds(xShip);
+    	boolean inBounds = checkUpperBounds(player.xPos);
     	if(inBounds == true){
-    		xShip += OBJ_SIZE;
+    		player.xPos += OBJ_SIZE;
     	}
     }
     
     public void moveShipLeft()
     {
-    	boolean inBounds = checkLowerBounds(xShip);
+    	boolean inBounds = checkLowerBounds(player.xPos);
     	if(inBounds == true)
     	{
-    		xShip -= OBJ_SIZE;
+    		player.xPos -= OBJ_SIZE;
     	}
     }
     
@@ -68,6 +78,11 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
+    public void fireBullet(int bulletNum, int xPos, int yPos){
+    	
+    }
+    
+    
     public void moveFood(){
         Random ran = new Random();
         xFood = ran.nextInt(BOUNDS_SIZE - OBJ_SIZE);
@@ -86,16 +101,26 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         super.paint(g);
         Graphics2D G = (Graphics2D) g;
         
-        G.setColor(Color.WHITE); // Background color
+        G.setColor(Color.BLACK); // Background color
         G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
         
-        G.setColor(Color.BLACK); // Worm color
-        G.fillRect(xShip, yShip, OBJ_SIZE, OBJ_SIZE); // Creates worm on screen
+        G.setColor(Color.MAGENTA); // Ship color
+        G.fillRect(player.xPos, player.yPos, player.size, player.size); // Creates worm on screen
         
-        G.setColor(Color.GREEN); // Worm food color
-        G.fillRect(xFood, yFood, OBJ_SIZE, OBJ_SIZE); // Creates worm food on screen
+        for(int i = 0; i < numEnemies; i++){
+        	G.setColor(Color.RED); 
+            G.fillRect(0, 0, OBJ_SIZE, OBJ_SIZE);
+        }
         
-        G.setColor(Color.BLUE); // The on-screen text color
+        G.setColor(Color.YELLOW); // Bullet color
+        G.fillRect(xFood, yFood, OBJ_SIZE/4, OBJ_SIZE/4); // Creates bullet on screen
+        
+        for(int i = 0; i < 4; i++){
+        	G.setColor(Color.BLUE); 
+            G.fillRect(i * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4, 64, 64);
+        }
+        
+        G.setColor(Color.WHITE); // The on-screen text color
         G.drawString("Use the arrow keys to move!", 156, 156);
         G.drawString("Score: " + String.valueOf(score), 214, 166);
         G.dispose();
@@ -142,7 +167,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         }
         else if(e.getKeyCode() == 38)
         {
-        	//moveWormUp();
+        	//moveUp
         }
         else if(e.getKeyCode() == 39)
         {
@@ -150,7 +175,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         }
         else if(e.getKeyCode() == 40)
         {
-        	//moveWormDown();
+        	//moveDown
         }
     }
 	
