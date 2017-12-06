@@ -240,13 +240,13 @@ public class ArcadeGUI
 		lblSelectAGame.setFont(new Font("Arial", Font.BOLD, 15));
 		gameChoiceToolBar.add(lblSelectAGame);
 		
-		JRadioButton rdbtnGame1 = new JRadioButton("Paddle Game");
+		final JRadioButton rdbtnGame1 = new JRadioButton("Paddle Game");
 		rdbtnGame1.setToolTipText("Game1");
 		rdbtnGame1.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame1);
 		
-		JRadioButton rdbtnGame2 = new JRadioButton("Worm Game");
+		final JRadioButton rdbtnGame2 = new JRadioButton("Worm Game");
 		rdbtnGame2.setFont(new Font("Arial", Font.PLAIN, 15));
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame2);
