@@ -85,16 +85,16 @@ public class TetrisBlock
         }
         else
         {
-        	int i = 0;
-        	
-        	while(i < 4) //each array index has to be changed
-        	{
-                t.setXCoordinates(i, i);
-                t.setYCoordinates(i, i);
-                i++;
-            }
-        	
-        	return t;
+        	/*
+       		 * Transpose
+       		 * Reverse each row
+       		 */
+       		int[][] arr = t.getCoordinateArr();      	
+            	
+       		arr = reverse(arr);
+           	arr = transpose(arr);
+     	
+           	return new TetrisBlock(arr, t.getBlockType());
         }
     }
 
@@ -105,17 +105,19 @@ public class TetrisBlock
             return t;
         }
         else
-        {
-        	int i = 0;
+        {	
+        	/*
+        	 * transpose); //done
+        	 * reverse(arr); //done	
+        	 * create new block
+        	 */
         	
-        	while(i < 4) //each array index has to be changed
-        	{
-                t.setXCoordinates(i, i);
-                t.setYCoordinates(i, i);
-                i++;
-            }
+        	int[][] arr = t.getCoordinateArr();
         	
-        	return t;
+        	arr = transpose(arr);
+        	arr = reverse(arr);
+        	
+        	return new TetrisBlock(arr, t.getBlockType());
         }
     }
     /*
@@ -124,15 +126,6 @@ public class TetrisBlock
      * and we will not have access to mutate that block's variables for security reasons.
      */
     
-    private void setXCoordinates(int row, int var)
-    {
-    	coordinates[row][0] = var; 
-    }
-    
-    private void setYCoordinates(int row, int var)
-    {
-    	coordinates[row][1] = var;
-    }
     
     /*
      * Getters can be public, and will assist us in boundary checking
@@ -146,6 +139,11 @@ public class TetrisBlock
     public int getYCoordinates(int row)
     {
     	return coordinates[row][1];
+    }
+    
+    public int[][] getCoordinateArr()
+    {
+    	return coordinates;
     }
     
     private static TetrisBlock createNullBlock()
@@ -170,7 +168,7 @@ public class TetrisBlock
 											{0, 0}, 
 											{-1, 0}, 
 											{-1, 1} 
-										};
+								};
 		
 		String name = "zBlock";
 		return new TetrisBlock(coordinates, name);
@@ -204,7 +202,7 @@ public class TetrisBlock
 		return new TetrisBlock(coordinates, name);
 	}
 	
-	public static TetrisBlock createTBlock()
+	private static TetrisBlock createTBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{ 
@@ -245,7 +243,7 @@ public class TetrisBlock
 		return new TetrisBlock(coordinates, name);
 	}
 	
-	public static TetrisBlock createMirrorLBlock()
+	private static TetrisBlock createMirrorLBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{
@@ -257,5 +255,38 @@ public class TetrisBlock
 										
 		String name = "mirrorLBlock";
 		return new TetrisBlock(coordinates, name);
+	}
+	
+	private static int[][] transpose(int[][] arr) 
+	{
+        if (arr.length > 0) 
+        {
+            for (int i = 0; i < arr[0].length; i++) //row length
+            {
+                for (int j = 0; j < arr.length; j++) //column length
+                {
+                	int temp = arr[i][j];
+                    arr[i][j] = arr[j][i];
+                    arr[j][i] = temp;
+                }
+            }
+        }
+        
+        return arr;
+    }
+	
+	private static int[][] reverse(int[][] arr)
+	{
+		for(int j = 0; j < arr.length; j++)
+		{
+		    for(int i = 0; i < arr[j].length / 2; i++) 
+		    {
+		        int temp = arr[j][i];
+		        arr[j][i] = arr[j][arr[j].length - i - 1];
+		        arr[j][arr[j].length - i - 1] = temp;
+		    }
+		}
+		
+		return arr;
 	}
 }
