@@ -8,15 +8,26 @@ import java.awt.event.KeyListener;
 @SuppressWarnings("serial")
 public class TetrisGame extends JPanel implements KeyListener, ActionListener 
 {
-	static final int OBJ_SIZE = 16; 	// The size of the worm and worm ford
+	static final int OBJ_SIZE = 32; 	// The size of the worm and worm ford
     static final int BOUNDS_SIZE = 512; 	//The size of the game boundaries
     static final int WIDTH = BOUNDS_SIZE + 16;	
     static final int HEIGHT = BOUNDS_SIZE + 39;
+    static final int stackHeight = BOUNDS_SIZE/OBJ_SIZE;
+    static final int stackWidth = BOUNDS_SIZE/OBJ_SIZE;
     
    
     private Timer timer;	//starts the actionlistener
     private TetrisBlock block;
-    private int[][] board;
+    private TetrisBlock[] board;
+    
+    boolean falling = false;
+    
+    int lines = 0;
+    
+    int xPos = 0;
+    int yPos = 0;
+    
+    TetrisBlock curBlock;
     
     int score = 0; 		//The player's score
 
@@ -44,26 +55,9 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      */
     public void paint(Graphics g)
     {
-    	super.paint(g);
-        Graphics2D G = (Graphics2D) g;
-        
-        G.setPaint(Color.WHITE); //set background to be white
-        G.fillRect(0, 0, 512, 512);
-        //user paddle
-        G.setPaint(Color.BLACK);
-        
-        //G.fillRect(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-		
-        //enemy paddle
-        //G.fillRect(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-		
-        //directions and scores
-        G.setPaint(Color.BLACK);
-        G.drawString("Use the arrow keys to move up and down!", 156, 156);
-        G.drawString("Score: " + String.valueOf(score), 214, 166);
-        G.dispose();
+       
     }
-    
+        
     /**
      * Play the game. 
      */
@@ -74,9 +68,9 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	 * 		done
     	 * Move piece
     	 * 		Conditions for piece: 1. Can it be rotated (due to boundaries)? 2. Can it move (due to boundaries)
-    	 * 			Framework made
+    	 * 			Done
     	 * Lock piece in.
-    	 * 		Framework made
+    	 * 		Done
     	 * Check if line is full or if we topped out
     	 * 		Full line checked. Topped out can be implemented last
     	 * Re-loop
@@ -84,37 +78,96 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	
     	//create piece
     	block = TetrisBlock.createRandomBlock();
+    	while(true)
+    	{
+    		if (!falling) 
+    		{
+    	        falling = false;
+    	        //removeFullLines();
+    	        block = TetrisBlock.createRandomBlock();
+    	    } 
+    		else 
+    		{
+    			moveDown();
+    		}
     	
+    	}
     }
     
     private void moveLeft()
     {
-    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	int xPos = this.xPos - OBJ_SIZE;
     	
-    	if(inBounds == true)
+    	int[][] arr = block.getCoordinateArr();
+    	
+    	int i = 0;	
+    	while(i < 4)
     	{
-    		//move block to the left
+    		int x = xPos + arr[i][0]; 
+    		
+            if(!checkBounds(x, yPos))
+            {
+            	//out of bounds. kill method
+            	return;
+            }
+            
+            i++;
     	}
+    	
+    	this.xPos = xPos;
+    	
+    	//repaint();
     }
     
     private void moveRight()
     {
-    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	int xPos = this.xPos + OBJ_SIZE;
     	
-    	if(inBounds == true)
+    	int[][] arr = block.getCoordinateArr();
+    	
+    	int i = 0;	
+    	while(i < 4)
     	{
-    		//move block to the right
+    		int x = xPos + arr[i][0]; 
+    		
+            if(!checkBounds(x, yPos))
+            {
+            	//out of bounds. kill method
+            	return;
+            }
+            
+            i++;
     	}
+    	
+    	this.xPos = xPos;
+    	
+    	//repaint();
     }    
     
     private void moveDown()
     {
-    	boolean inBounds = true; //checkLowerBounds(xWorm);
+    	int yPos = this.yPos - OBJ_SIZE;
     	
-    	if(inBounds == true)
+    	int[][] arr = block.getCoordinateArr();
+    	
+    	int i = 0;	
+    	while(i < 4)
     	{
-    		//move block down a line
+    		int y = yPos + arr[i][1]; 
+    		
+            if(!checkBounds(xPos, y))
+            {
+            	//out of bounds, lock piece in
+            	lockPieceIn(block);
+            }
+            
+            i++;
     	}
+    	
+    	this.yPos = yPos;
+        
+    	//repaint();
+        
     }
     
     private void lockPieceIn(TetrisBlock t)
@@ -126,6 +179,18 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	 * 2. Add 1's where block is placed given piece shape
     	 * 3. Redraw board (maybe respecting piece color idk)
     	 */
+    	
+    	int[][] arr = t.getCoordinateArr();
+    	
+        for(int i = 0; i < arr.length * 2; i++) 
+        {
+            int x = xPos + arr[i][0];
+            int y = yPos - arr[i][1];
+            
+            board[(y * OBJ_SIZE/2) + x] = t;
+        }
+
+        falling = false;
     }
     
     private void clearLine()
@@ -161,23 +226,19 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	{
 		if(e.getKeyCode() == 37)
         {
-			//if checkLeftMove(position) == true
-        		//moveLeft();
+			moveLeft();
 		}
-        else if(e.getKeyCode() == 38)
+        else if(e.getKeyCode() == 38) //up arrow key
         {
-        	//if canRotate == true
-        		//rotateRight
-        	
+        	block.rotateLeft(block);
         }
         else if(e.getKeyCode() == 39)
         {
-        	//if checkRightMove(position) == true
-        		//moveRight();
+        	moveRight();
         }
         else if(e.getKeyCode() == 40)
         {
-        	//moveDown
+        	moveDown();
         }
 		
 		/*
@@ -192,5 +253,27 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 
 	@Override
 	public void keyTyped(KeyEvent arg0) { }
+	
+	private boolean checkBounds(int xPos, int yPos)
+	{
+		//check for collision
+		if (!getBlockType(xPos, yPos).equals("nullBlock"))
+		{
+			return false;
+		}
+		
+		//check boundaries
+		if (xPos < 0 || yPos < 0 || xPos >= BOUNDS_SIZE || yPos >= BOUNDS_SIZE)
+        {
+            return false;
+        }
+		
+		return true;
+	}
+	
+	private String getBlockType(int x, int y) 
+	{ 
+		return board[(y * OBJ_SIZE/2) + x].getBlockType();
+	}
 
 }
