@@ -10,7 +10,6 @@ public class TetrisBlock
 {
 	private int[][] coordinates;
 	private String blockType; 
-
     /**
      * Parameterized constructor. Makes a Tetris block from input.
      * @param coordinates
@@ -37,7 +36,7 @@ public class TetrisBlock
 
     public static TetrisBlock createRandomBlock()
     {
-        int x = (int) Math.random() * 7 + 1;
+        int x = (int) (Math.random() * 7) + 1;
         
         if(x == 1)
         {
@@ -77,11 +76,11 @@ public class TetrisBlock
         return null;
     }
     
-    public static TetrisBlock rotateLeft(TetrisBlock t) 
+    public void rotateLeft() 
     {
-        if(t.getBlockType() == "squareBlocK") 
+        if(blockType == "squareBlocK") 
         {
-            return t;
+            return;
         }
         else
         {
@@ -89,37 +88,14 @@ public class TetrisBlock
        		 * Transpose
        		 * Reverse each row
        		 */
-       		int[][] arr = t.getCoordinateArr();      	
-            	
-       		arr = reverse(arr);
-           	arr = transpose(arr);
-     	
-           	return new TetrisBlock(arr, t.getBlockType());
+        	int[][] arr = coordinates;
+        	 
+        	
+        	arr = transpose(reverseRows(arr));
+        	coordinates = arr;
         }
     }
-
-    public static TetrisBlock rotateRight(TetrisBlock t) 
-    {
-        if(t.getBlockType() == "squareBlock") 
-        {
-            return t;
-        }
-        else
-        {	
-        	/*
-        	 * transpose); //done
-        	 * reverse(arr); //done	
-        	 * create new block
-        	 */
-        	
-        	int[][] arr = t.getCoordinateArr();
-        	
-        	arr = transpose(arr);
-        	arr = reverse(arr);
-        	
-        	return new TetrisBlock(arr, t.getBlockType());
-        }
-    }
+    
     /*
      * The following mutator methods are to assist us in keeping our methods static. 
      * The logic is that in our game we will be calling rotatemethods with a certain block,
@@ -146,7 +122,19 @@ public class TetrisBlock
     	return coordinates;
     }
     
-    private static TetrisBlock createNullBlock()
+    public int getMinYCoord() 
+    {
+    	int min = coordinates[0][1];
+      
+    	for (int i = 1; i < 4; i++) 
+    	{
+    		min = Math.min(min, coordinates[i][1]);
+    	}
+      
+    	return min;
+    }
+    
+    public static TetrisBlock createNullBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{ 
@@ -188,7 +176,7 @@ public class TetrisBlock
 		return new TetrisBlock(coordinates, name);
 	}
 	
-	public static TetrisBlock createLineBlock()
+	private static TetrisBlock createLineBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{
@@ -202,7 +190,7 @@ public class TetrisBlock
 		return new TetrisBlock(coordinates, name);
 	}
 	
-	private static TetrisBlock createTBlock()
+	public static TetrisBlock createTBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{ 
@@ -261,9 +249,9 @@ public class TetrisBlock
 	{
         if (arr.length > 0) 
         {
-            for (int i = 0; i < arr[0].length; i++) //row length
+            for (int i = 0; i < 2; i++) //row length
             {
-                for (int j = 0; j < arr.length; j++) //column length
+                for (int j = 0; j < 2; j++) //column length
                 {
                 	int temp = arr[i][j];
                     arr[i][j] = arr[j][i];
@@ -275,18 +263,38 @@ public class TetrisBlock
         return arr;
     }
 	
-	private static int[][] reverse(int[][] arr)
+	private static int[][] reverseRows(int[][] arr)
 	{
-		for(int j = 0; j < arr.length; j++)
-		{
-		    for(int i = 0; i < arr[j].length / 2; i++) 
-		    {
-		        int temp = arr[j][i];
-		        arr[j][i] = arr[j][arr[j].length - i - 1];
-		        arr[j][arr[j].length - i - 1] = temp;
-		    }
-		}
+		  for(int row = 0; row < arr.length; row++)
+		  {
+		        for(int col = 0; col < arr[row].length / 2; col++) 
+		        {
+		            int temp = arr[row][col] * -1;
+		            arr[row][col] = arr[row][arr[row].length - col - 1];
+		            arr[row][arr[row].length - col - 1] = temp;
+		        }
+		  }
+		
+		  return arr;
+	}
+	
+	private static int[][] reverseColumns(int[][] arr)
+	{
+        for(int col = 0;col < arr[0].length; col++)
+        {
+            for(int row = 0; row < arr.length/2; row++)
+            {
+                int temp = arr[row][col];
+                arr[row][col] = arr[arr.length - row - 1][col];
+                arr[arr.length - row - 1][col] = temp;
+            }
+        }
 		
 		return arr;
+	}
+	
+	public static void main(String[] args)
+	{
+		
 	}
 }
