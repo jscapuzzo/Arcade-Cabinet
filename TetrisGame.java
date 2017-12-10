@@ -53,7 +53,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private void newPiece()
     {
     	//System.out.print("b");
-        block = TetrisBlock.createRandomBlock();
+        block = TetrisBlock.createTBlock();
         
         //System.out.println(block.getBlockType());
         
@@ -99,8 +99,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
                 
                 if(t != null && t.getBlockType() != "nullBlock")
                 {
-                	System.out.println("j times stackwidth: " + j * stackWidth);
-                	System.out.println("top + i times stackheight: " + (top + i * stackHeight));
+                	//System.out.println("j times stackwidth: " + j * stackWidth);
+                	//System.out.println("top + i times stackheight: " + (top + i * stackHeight));
                 	
                     drawSquare(g, j * OBJ_SIZE, (stackHeight - i- 1) * OBJ_SIZE, block);
                 }
@@ -113,8 +113,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         	{
                 int x = xPos + arr[i][0];
                 int y = yPos - arr[i][1];
-                System.out.println("x: " + x);
-                System.out.println("y: " + y);
+                //System.out.println("x: " + x);
+                //System.out.println("y: " + y);
                 drawSquare(g, x * OBJ_SIZE, (stackHeight - y - 1) * OBJ_SIZE, block);
         	}
         }
@@ -201,9 +201,9 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xPos + arr[i][0];
     		int y = yPos - arr[i][1];
     		
-    		System.out.println("Try moved output begin\n");
-    		System.out.println(y);
-    		System.out.println("\nTrymoved output end\n");
+    		//System.out.println("Try moved output begin\n");
+    		//System.out.println(y);
+    		//System.out.println("\nTrymoved output end\n");
     		//System.out.println(checkBounds(xPos, y));
     		
             if(!checkBounds(x, y))
@@ -240,13 +240,13 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
             int x = xPos + arr[i][0];
             int y = yPos - arr[i][1];
             
-            System.out.println("Piece dropped output begin\n");
-            System.out.println(xPos + "\n");
-            System.out.println(yPos + "\n");
-            System.out.println(arr[i][0] + "\n");
-            System.out.println(arr[i][1] + "\n");
-            System.out.println("Position: " + ((y * stackWidth) + x) + "\n");
-            System.out.println("Piece dropped output end\n");
+            //System.out.println("Piece dropped output begin\n");
+            //System.out.println(xPos + "\n");
+            //System.out.println(yPos + "\n");
+            //System.out.println(arr[i][0] + "\n");
+            //System.out.println(arr[i][1] + "\n");
+            //System.out.println("Position: " + ((y * stackWidth) + x) + "\n");
+            //System.out.println("Piece dropped output end\n");
             board[(y * stackWidth) + x] = block;
         }
         
@@ -325,7 +325,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 		}
         else if(e.getKeyCode() == 38) //up arrow key
         {
-        	block = TetrisBlock.rotateLeft(block);
+        	block.rotateLeft();
         }
         else if(e.getKeyCode() == 39)
         {
@@ -357,6 +357,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 		if (xPos < 0 || yPos < 0 || xPos >= stackWidth || yPos >= stackHeight)
         {
             return false;
+            
         }
 		
 		//check for collision
