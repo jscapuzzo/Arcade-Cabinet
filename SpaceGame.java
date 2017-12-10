@@ -11,29 +11,37 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 {
 	static final int OBJ_SIZE = 32; // The size of the ship and ship food
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    static final int BULLET_SIZE = OBJ_SIZE/4;
+    static final int eBulletPos = OBJ_SIZE - BULLET_SIZE;
     static final int numEnemies = 8;
+    int enemyDirection = OBJ_SIZE/32;
     static int xShip = BOUNDS_SIZE/2; // The x-position of the ship
     static int yShip = BOUNDS_SIZE - OBJ_SIZE; // The y-position of the ship
-    int xFood = BOUNDS_SIZE/2; // The x-position of the worm food
-    int yFood = BOUNDS_SIZE/2; // The y-position of the worm food
     int score = 0; // The player's score
+    int lives = 3;
     private Timer timer;
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
-    SpaceObject bullet1;
-    SpaceObject bullet2;
-    SpaceObject bullet3;
-    SpaceObject bullet4;
+    SpaceObject pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip);
     SpaceObject player = new SpaceObject(1, 1, xShip, yShip);
     SpaceObject barrier1;
     SpaceObject barrier2;
     SpaceObject barrier3;
     SpaceObject barrier4;
+    SpaceObject enemy1 = new SpaceObject(2, 1, OBJ_SIZE, 0);
+    SpaceObject eBullet = new SpaceObject(2, 2, enemy1.xPos + BULLET_SIZE, eBulletPos);
+    boolean pBulletMoving = false;
+    boolean eBulletMoving = false;
 
     public void moveShipRight()
     {
     	boolean inBounds = checkUpperBounds(player.xPos);
     	if(inBounds == true){
     		player.xPos += OBJ_SIZE;
+    	}
+    	
+    	if(player.yPos == pBullet.yPos) {
+    		pBullet.xPos = player.xPos + BULLET_SIZE;
+    		pBullet.yPos = player.yPos;
     	}
     }
     
@@ -43,6 +51,52 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	if(inBounds == true)
     	{
     		player.xPos -= OBJ_SIZE;
+    	}
+    	
+    	if(player.yPos == pBullet.yPos) {
+    		pBullet.xPos = player.xPos + BULLET_SIZE;
+    		pBullet.yPos = player.yPos;
+    	}
+    }
+    
+    public void fireBullet() 
+    {
+    	pBullet.yPos -= OBJ_SIZE/4;
+    	
+    	if(pBullet.yPos < 0) {
+    		pBullet.xPos = player.xPos + BULLET_SIZE;
+    		pBullet.yPos = player.yPos;
+    		pBulletMoving = false;
+    	}
+    	
+    }
+    
+    public void fireEBullet() 
+    {
+    	eBullet.yPos += OBJ_SIZE/4;
+    	
+    	if(eBullet.yPos > BOUNDS_SIZE) {
+    		eBullet.xPos = enemy1.xPos + BULLET_SIZE;
+    		eBullet.yPos = enemy1.yPos;
+    		eBulletMoving = false;
+    	}
+    	
+    }
+    
+    public void moveBullet()
+    {
+    	if(pBulletMoving == true) {
+    		pBullet.yPos -= OBJ_SIZE/4;
+    	}
+    	
+    	if(eBulletMoving == true) {
+    		eBullet.yPos += OBJ_SIZE/4;
+    	}
+    	
+    	if(eBulletMoving == false && eBullet.xPos != enemy1.xPos + BULLET_SIZE) {
+    		eBullet.xPos = enemy1.xPos + BULLET_SIZE;
+    		eBullet.yPos = enemy1.yPos;
+    		eBulletMoving = false;
     	}
     }
     
@@ -70,31 +124,49 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void checkFood(){
-    	if(xShip == xFood && yShip == yFood)
+    public void checkEnemy(){
+    	if(pBullet.xPos <= enemy1.xPos + OBJ_SIZE && pBullet.xPos >= enemy1.xPos)
     	{
-    		score++;
-    		moveFood();
+    		if(pBullet.yPos <= enemy1.yPos + OBJ_SIZE && pBullet.yPos >= enemy1.yPos) 
+    		{
+    			score++;
+        		moveEnemy();
+        		pBullet.xPos = player.xPos;
+        		pBullet.yPos = player.yPos;
+        		pBulletMoving = false;
+    		}
     	}
     }
     
-    public void fireBullet(int bulletNum, int xPos, int yPos){
-    	
+    public void checkPlayer(){
+    	if(eBullet.xPos <= player.xPos + OBJ_SIZE && eBullet.xPos >= player.xPos)
+    	{
+    		if(eBullet.yPos <= player.yPos + OBJ_SIZE && eBullet.yPos >= player.yPos) 
+    		{
+    			lives--;
+        		eBullet.xPos = enemy1.xPos;
+        		eBullet.yPos = enemy1.yPos;
+        		eBulletMoving = false;
+    		}
+    	}
     }
     
-    
-    public void moveFood(){
-        Random ran = new Random();
-        xFood = ran.nextInt(BOUNDS_SIZE - OBJ_SIZE);
-        yFood = ran.nextInt(BOUNDS_SIZE - OBJ_SIZE);
-        while(xFood % OBJ_SIZE != 0)
-        {
-        	xFood = ran.nextInt(BOUNDS_SIZE - OBJ_SIZE);
+    public void moveEnemy(){
+    	moveBullet();
+        if(checkUpperBounds(enemy1.xPos) == false) {
+        	enemyDirection = -enemyDirection;
+        	enemy1.xPos += enemyDirection;
+        	enemy1.yPos += OBJ_SIZE;
         }
-        while(yFood % OBJ_SIZE != 0)
-        {
-        	yFood = ran.nextInt(BOUNDS_SIZE - OBJ_SIZE);
+        else if(checkLowerBounds(enemy1.xPos) == false) {
+        	enemyDirection = -enemyDirection;
+        	enemy1.xPos += enemyDirection;
+        	enemy1.yPos += OBJ_SIZE;
         }
+        else {
+        	enemy1.xPos += enemyDirection;
+        }
+        
     }
     
     public void paint(Graphics g){
@@ -104,25 +176,38 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         G.setColor(Color.BLACK); // Background color
         G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
         
-        G.setColor(Color.MAGENTA); // Ship color
-        G.fillRect(player.xPos, player.yPos, player.size, player.size); // Creates worm on screen
-        
-        for(int i = 0; i < numEnemies; i++){
-        	G.setColor(Color.RED); 
-            G.fillRect(0, 0, OBJ_SIZE, OBJ_SIZE);
+        if(lives > 0)
+        {
+	        
+	        for(int i = 0; i < 4; i++){
+	        	G.setColor(Color.BLUE); 
+	            G.fillRect(i * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4, 64, 64);
+	        }
+	        
+	        G.setColor(Color.YELLOW); // Bullet color
+	        G.fillRect(pBullet.xPos, pBullet.yPos, OBJ_SIZE/4, OBJ_SIZE/4); // Creates player bullet on screen
+	        
+	        G.setColor(Color.MAGENTA); // Ship color
+	        G.fillRect(player.xPos, player.yPos, player.size, player.size); // Creates worm on screen
+	        
+	        G.setColor(Color.ORANGE); // Enemy bullet color
+	        G.fillRect(eBullet.xPos, eBullet.yPos, OBJ_SIZE/4, OBJ_SIZE/4); // Creates enemy bullet on screen
+	        
+	        G.setColor(Color.RED); 
+	        G.fillRect(enemy1.xPos, enemy1.yPos, OBJ_SIZE, OBJ_SIZE);
+	        
+	        G.setColor(Color.WHITE); // The on-screen text color
+	        G.drawString("Use the arrow keys to move!", 156, 156);
+	        G.drawString("Score: " + String.valueOf(score), 214, 166);
+	        G.drawString("Lives: " + String.valueOf(lives), 214, 176);
+	        
+        }
+        else
+        {
+        	G.setColor(Color.WHITE); // The on-screen text color
+	        G.drawString("GAME OVER", 156, 156);
         }
         
-        G.setColor(Color.YELLOW); // Bullet color
-        G.fillRect(xFood, yFood, OBJ_SIZE/4, OBJ_SIZE/4); // Creates bullet on screen
-        
-        for(int i = 0; i < 4; i++){
-        	G.setColor(Color.BLUE); 
-            G.fillRect(i * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4, 64, 64);
-        }
-        
-        G.setColor(Color.WHITE); // The on-screen text color
-        G.drawString("Use the arrow keys to move!", 156, 156);
-        G.drawString("Score: " + String.valueOf(score), 214, 166);
         G.dispose();
     }
 
@@ -154,7 +239,10 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     
     public void play()
     {
-    	checkFood();
+    	checkEnemy();
+    	moveBullet();
+    	checkPlayer();
+    	moveEnemy();
         repaint();
     }
     
@@ -167,7 +255,8 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         }
         else if(e.getKeyCode() == 38)
         {
-        	//moveUp
+        	fireBullet();
+        	pBulletMoving = true;
         }
         else if(e.getKeyCode() == 39)
         {
@@ -176,6 +265,8 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         else if(e.getKeyCode() == 40)
         {
         	//moveDown
+        	fireEBullet();
+        	eBulletMoving = true;
         }
     }
 	
