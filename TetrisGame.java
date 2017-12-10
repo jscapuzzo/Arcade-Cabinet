@@ -20,6 +20,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private boolean falling = true;	//piece is falling or not
     private int lines = 0;		//number of cleared lines
     private int score = 0; 		//The player's score
+    boolean gameOver;
     
     private int xBlock = 0;
     private int yBlock = 0;
@@ -127,9 +128,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      * If possible, move block to the left
      */
     private void moveLeft()
-    {
-    	//check game over
-    	
+    {	
     	int xPos = xBlock - 1;
     	
     	int[][] bCoords = block.getCoordinateArr();
@@ -156,8 +155,6 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      */
     private void moveRight()
     {
-    	//check game over
-    	
     	int xPos = xBlock + 1;
     	
     	int[][] bCoords = block.getCoordinateArr();
@@ -177,7 +174,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	xBlock = xPos;
     	
     	repaint();
-    }    
+    }
     
     /**
      * If possible, move block down a line
@@ -193,6 +190,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xBlock + bCoords[i][0];
     		int y = yPos - bCoords[i][1];
     		
+    		
+    		
             if(!checkBounds(x, y))
             {
             	//out of bounds, lock piece in and end method
@@ -205,6 +204,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	yBlock = yPos;
         
     	repaint();
+    
     }
     
     /**
@@ -220,7 +220,14 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	{
             int x = xBlock + bCoords[i][0];
             int y = yBlock - bCoords[i][1];
-            
+          
+            //check for game condition
+        	if((yBlock - block.getMinYCoord()) >= HEIGHT - 1)
+            {
+        		gameOver = true;
+        		falling = false;
+            }
+        	
             matrix[y][x] = block;
         }
         
@@ -279,17 +286,21 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
             lines += count;
             addScore(lines);
             
+            //reset block to avoid confusion. 
+            //Note: had a crazy bug occur when I cleared two lines, so this is necessary although seemingly redundant.
+            block = TetrisBlock.createNullBlock();
+            
             repaint();
         }
     }
     
     /**
      * Calculate new score based on amount of lines cleared.
-     * @param lines Amount of lines cleared
+     * @param num Amount of lines cleared
      */
-    private void addScore(int lines)
+    private void addScore(int num)
     {
-    	score += Math.pow(2, lines);
+    	score += Math.pow(2, num);
     }
     
 	@Override
@@ -320,8 +331,14 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	 * Re-loop
     	 */
     	
-    	if(!falling) //piece is not falling, make a new one 
+    	if(gameOver)
     	{
+    		timer.stop();
+    		return;
+    	}
+    	else if(!falling) //piece is not falling, make a new one 
+    	{
+    		//check game over
     		falling = true;
     		newBlock();
     	} 
@@ -334,16 +351,9 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	
     }
     
-    private boolean gameOver()
-    {
-    	
-    	return true;
-    }
-    
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
-		//System.out.print("L");
 		if(e.getKeyCode() == 37)	//left arrow key
         {
 			moveLeft();
