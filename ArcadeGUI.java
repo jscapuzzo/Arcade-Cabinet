@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JRadioButton;
 
 import java.awt.BorderLayout;
+
 import java.awt.Dimension;
 
 import javax.swing.JToolBar;
@@ -119,9 +120,9 @@ public class ArcadeGUI
 	 */
 	private void initMenuBar() 
 	{
-		JMenu fileMenu = new JMenu("File");
+		JMenu fileMenu = new JMenu("Help");
 		 
-		JMenuItem help = new JMenuItem("Help");
+		JMenuItem help = new JMenuItem("Instructions");
 		help.addActionListener(new ActionListener() 
 		{
 			public void actionPerformed(ActionEvent e) 
@@ -135,23 +136,7 @@ public class ArcadeGUI
 			}
 		});
 		
-		JMenuItem highScore = new JMenuItem("High Scores");
-		highScore.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				System.out.println("a");
-				JFrame highScoreBox = new JFrame("High Scores");
-				highScoreBox.setSize(300, 300);
-				highScoreBox.setLocationRelativeTo(null);
-				highScoreBox.setResizable(false);
-				highScoreBox.setVisible(true);
-			}
-		});
-		
-		
 		fileMenu.add(help);
-		fileMenu.add(highScore);
 		fileMenu.setVisible(true);
 		
 		menuBar.add(fileMenu);
@@ -183,59 +168,6 @@ public class ArcadeGUI
 	 */
 	private void initToolBars()
 	{
-		JLabel lblThemeLabel = new JLabel("Select a theme:");
-		lblThemeLabel.setFont(new Font("Arial", Font.BOLD, 15));
-		themeToolBar.add(lblThemeLabel);
-		
-		JRadioButton rdbtnClassicTheme = new JRadioButton("Classic");
-		rdbtnClassicTheme.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		themeToolBar.add(rdbtnClassicTheme);
-		
-		JRadioButton rdbtnOceanTheme = new JRadioButton("Ocean");
-		rdbtnOceanTheme.setFont(new Font("Arial", Font.PLAIN, 15));
-		themeToolBar.addSeparator();
-		themeToolBar.add(rdbtnOceanTheme);
-		
-		JRadioButton rdbtnSpaceTheme = new JRadioButton("Space");
-		rdbtnSpaceTheme.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		themeToolBar.addSeparator();
-		themeToolBar.add(rdbtnSpaceTheme);
-		
-		ButtonGroup themeGroup = new ButtonGroup();
-		themeGroup.add(rdbtnSpaceTheme);
-		themeGroup.add(rdbtnOceanTheme);
-		themeGroup.add(rdbtnClassicTheme);
-		
-		JButton btnSubmitTheme = new JButton("Submit");
-		btnSubmitTheme.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-					SwingUtilities.updateComponentTreeUI(frame);  // update components
-					frame.pack();
-					//frame.setBounds(100, 100, 1130, 659);
-					frame.setLocationRelativeTo(null);
-					frame.setVisible(true);
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (UnsupportedLookAndFeelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		themeToolBar.addSeparator();
-		themeToolBar.addSeparator();
-		themeToolBar.add(btnSubmitTheme);
-		btnSubmitTheme.setFont(new Font("Arial", Font.PLAIN, 15));
 		
 		JLabel lblSelectAGame = new JLabel("Select a game:");
 		lblSelectAGame.setFont(new Font("Arial", Font.BOLD, 15));
@@ -273,6 +205,7 @@ public class ArcadeGUI
 		choiceGroup.add(rdbtnGame1);
 		choiceGroup.add(rdbtnGame2);
 		choiceGroup.add(rdbtnGame3);
+		choiceGroup.add(rdbtnGame4);
 		
 		btnSubmitChoice.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent arg0) 
