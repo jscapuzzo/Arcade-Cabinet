@@ -34,8 +34,10 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     
     int score = 0; // The player's score
     int enemyScore = 0;
+    final int winScore = 25;
     
     boolean resetBall = false;
+    boolean secondPlayer = false;
     
     public void movePaddleUp()
     {
@@ -113,15 +115,22 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     
     public void moveEnemyPaddle()
     {
-        if(yEnemyPaddle < yBall)
-        {
-        	moveEnemyPaddleDown();
-        }
-        
-        else if(yEnemyPaddle > yBall)
-        {
-        	moveEnemyPaddleUp();
-        }
+    	if(secondPlayer == true)
+    	{
+	        
+    	}
+    	else
+    	{
+    		if(yEnemyPaddle < yBall)
+	        {
+	        	moveEnemyPaddleDown();
+	        }
+	        
+	        else if(yEnemyPaddle > yBall)
+	        {
+	        	moveEnemyPaddleUp();
+	        }
+    	}
     }
     
     public void moveBall()
@@ -205,31 +214,48 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
         Graphics2D G = (Graphics2D) g;
         
         G.setPaint(Color.WHITE); //set background to be white
-        G.fillRect(0, 0, 512, 512);
+        G.fillRect(0, 0, BOUNDS_SIZE + 16, BOUNDS_SIZE + 39);
         
-        if(resetBall) //beginning of game
+        if(score >= winScore)
         {
-        	yPaddle = HEIGHT / 2;
-        	yEnemyPaddle = yPaddle;
+        	G.setColor(Color.BLACK); // The on-screen text color
+	        G.drawString("YOU WIN!", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
         }
-		
-        //ball or whatever sphere we want
-        Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
-        G.setPaint(Color.MAGENTA);
-        G.fill(ball);
-        
-        //user paddle
-        G.setPaint(Color.BLACK);
-        G.fillRect(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-		
-        //enemy paddle
-        G.fillRect(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
-		
-        //directions and scores
-        G.setPaint(Color.BLACK);
-        G.drawString("Use the arrow keys to move up and down!", 156, 156);
-        G.drawString("Score: " + String.valueOf(score), 214, 166);
-        G.drawString("Enemy Score: " + String.valueOf(enemyScore), 204, 176);
+        else if(enemyScore >= winScore)
+        {
+        	G.setColor(Color.BLACK); // The on-screen text color
+	        G.drawString("GAME OVER", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+	        G.drawString("Enemy Won!", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE + 20);
+        }
+        else
+        {
+        	if(resetBall) //beginning of game
+	        {
+	        	yPaddle = HEIGHT / 2;
+	        	yEnemyPaddle = yPaddle;
+	        }
+			
+	        //ball or whatever sphere we want
+	        Ellipse2D ball = new Ellipse2D.Double(xBall, yBall, OBJ_SIZE, OBJ_SIZE);
+	        G.setPaint(Color.MAGENTA);
+	        G.fill(ball);
+	        
+	        //user paddle
+	        G.setPaint(Color.BLACK);
+	        G.fillRect(xPaddle, yPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+			
+	        //enemy paddle
+	        G.setPaint(Color.RED);
+	        G.fillRect(xEnemyPaddle, yEnemyPaddle, OBJ_SIZE, PADDLE_HEIGHT);
+			
+	        //directions and scores
+	        G.setPaint(Color.BLACK);
+	        G.drawString("Use the arrow keys to move up and down", 156, 116);
+	        G.drawString("Press r key toggle 2-player", 186, 136);
+	        G.drawString("Score " + winScore + " to win!", 214, 156);
+	        G.drawString("Score: " + String.valueOf(score), 230, 176);
+	        G.drawString("Enemy Score: " + String.valueOf(enemyScore), 210, 186);
+        }
         G.dispose();
     }
     
@@ -293,6 +319,21 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	 else if(e.getKeyCode() == 40) //'down' arrow key
     	 {
     		 movePaddleDown();
+    	 }
+    	 
+    	 if(e.getKeyCode() == 87) //w key
+    	 {
+    		 moveEnemyPaddleUp();
+    	 }
+    	 else if(e.getKeyCode() == 83) //s key
+    	 {
+    		 moveEnemyPaddleDown();
+    	 }
+
+    	 if(e.getKeyCode() == 82) //r key
+    	 {
+    		 reset();
+    		 secondPlayer = !secondPlayer;
     	 }
      }
      
