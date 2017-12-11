@@ -9,28 +9,34 @@ import java.util.Random;
 @SuppressWarnings("serial")
 public class SpaceGame extends JPanel implements KeyListener, ActionListener
 {
-	static final int OBJ_SIZE = 32; // The size of the ship and ship food
+	static final int OBJ_SIZE = 32; // The size of the ships
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
-    static final int BULLET_SIZE = OBJ_SIZE/4;
-    static final int eBulletPos = OBJ_SIZE - BULLET_SIZE;
-    static final int numEnemies = 8;
-    int enemyDirection = OBJ_SIZE/32;
+    static final int BULLET_SIZE = OBJ_SIZE/4; // The size of the bullet used by both ships
+    static final int eBulletPos = OBJ_SIZE - BULLET_SIZE; // Used to align the enemy bullet correctly
+    static final int enemyFireDelayValue = 120; // The delay between firing bullets for the enemy
+    int enemySpeed = 32; // Determines how fast the enemy moves across the screen
+    int enemyDirection = OBJ_SIZE; // Determines the x-direction the enemy ship moves
     static int xShip = BOUNDS_SIZE/2; // The x-position of the ship
     static int yShip = BOUNDS_SIZE - OBJ_SIZE; // The y-position of the ship
-    int score = 0; // The player's score
-    int lives = 3;
+    int lives = 3; // The player's number of lives left
+    int enemyFireDelay = 120; // A counter that when it reaches zero, the enemy ships fires 
+    int barrier1Hit = 2; // Value that determines damage value of the first barrier
+    int barrier2Hit = 2; // Value that determines damage value of the second barrier
+    int barrier3Hit = 2; // Value that determines damage value of the third barrier
+    int barrier4Hit = 2; // Value that determines damage value of the fourth barrier
     private Timer timer;
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
-    SpaceObject pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip);
+    boolean pBulletMoving = false; // Ensures the player bullet only moves when fired
+    boolean eBulletMoving = false; // Ensures the enemy bullet only moves when fired
+    boolean resetEnemy = false; 
     SpaceObject player = new SpaceObject(1, 1, xShip, yShip);
-    SpaceObject barrier1;
-    SpaceObject barrier2;
-    SpaceObject barrier3;
-    SpaceObject barrier4;
-    SpaceObject enemy1 = new SpaceObject(2, 1, OBJ_SIZE, 0);
-    SpaceObject eBullet = new SpaceObject(2, 2, enemy1.xPos + BULLET_SIZE, eBulletPos);
-    boolean pBulletMoving = false;
-    boolean eBulletMoving = false;
+    SpaceObject pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip); // Player bullet
+    SpaceObject barrier1 = new SpaceObject(0, 0, 0 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+    SpaceObject barrier2 = new SpaceObject(0, 0, 1 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+    SpaceObject barrier3 = new SpaceObject(0, 0, 2 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+    SpaceObject barrier4 = new SpaceObject(0, 0, 3 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+    SpaceObject enemy = new SpaceObject(2, 1, OBJ_SIZE, 0);
+    SpaceObject eBullet = new SpaceObject(2, 2, enemy.xPos + BULLET_SIZE, eBulletPos); // Enemy bullet
 
     public void moveShipRight()
     {
@@ -40,7 +46,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     	
     	if(player.yPos == pBullet.yPos) {
-    		pBullet.xPos = player.xPos + BULLET_SIZE;
+    		pBullet.xPos = player.xPos + pBullet.size;
     		pBullet.yPos = player.yPos;
     	}
     }
@@ -54,7 +60,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     	
     	if(player.yPos == pBullet.yPos) {
-    		pBullet.xPos = player.xPos + BULLET_SIZE;
+    		pBullet.xPos = player.xPos + pBullet.size;
     		pBullet.yPos = player.yPos;
     	}
     }
@@ -62,25 +68,25 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     public void fireBullet() 
     {
     	pBullet.yPos -= OBJ_SIZE/4;
-    	
-    	if(pBullet.yPos < 0) {
-    		pBullet.xPos = player.xPos + BULLET_SIZE;
-    		pBullet.yPos = player.yPos;
-    		pBulletMoving = false;
-    	}
-    	
     }
     
     public void fireEBullet() 
     {
     	eBullet.yPos += OBJ_SIZE/4;
-    	
-    	if(eBullet.yPos > BOUNDS_SIZE) {
-    		eBullet.xPos = enemy1.xPos + BULLET_SIZE;
-    		eBullet.yPos = enemy1.yPos;
-    		eBulletMoving = false;
+    }
+    
+    public void enemyShoot() 
+    {
+    	Random ran = new Random();
+    	boolean shoot = ran.nextBoolean();
+    	if(shoot == true && enemyFireDelay < 1) {
+    		fireEBullet();
+    		eBulletMoving = true;
+    		enemyFireDelay = enemyFireDelayValue;
     	}
-    	
+    	else {
+    		enemyFireDelay--;
+    	}
     }
     
     public void moveBullet()
@@ -89,13 +95,25 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     		pBullet.yPos -= OBJ_SIZE/4;
     	}
     	
+    	if(pBullet.yPos < 0) {
+    		pBullet.xPos = player.xPos + pBullet.size;
+    		pBullet.yPos = player.yPos;
+    		pBulletMoving = false;
+    	}
+    	
     	if(eBulletMoving == true) {
     		eBullet.yPos += OBJ_SIZE/4;
     	}
     	
-    	if(eBulletMoving == false && eBullet.xPos != enemy1.xPos + BULLET_SIZE) {
-    		eBullet.xPos = enemy1.xPos + BULLET_SIZE;
-    		eBullet.yPos = enemy1.yPos;
+    	if(eBullet.yPos > BOUNDS_SIZE) {
+    		eBullet.xPos = enemy.xPos + eBullet.size;
+    		eBullet.yPos = enemy.yPos;
+    		eBulletMoving = false;
+    	}
+    	
+    	if(eBulletMoving == false && eBullet.xPos != enemy.xPos + eBullet.size) {
+    		eBullet.xPos = enemy.xPos + eBullet.size;
+    		eBullet.yPos = enemy.yPos;
     		eBulletMoving = false;
     	}
     }
@@ -124,12 +142,75 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void checkEnemy(){
-    	if(pBullet.xPos <= enemy1.xPos + OBJ_SIZE && pBullet.xPos >= enemy1.xPos)
+    public void checkBarrier()
+    {
+    	if(eBullet.xPos <= barrier1.xPos + barrier1.size && eBullet.xPos >= barrier1.xPos)
     	{
-    		if(pBullet.yPos <= enemy1.yPos + OBJ_SIZE && pBullet.yPos >= enemy1.yPos) 
+    		if(eBullet.yPos <= barrier1.yPos + barrier1.size && eBullet.yPos >= barrier1.yPos) 
     		{
-    			score++;
+    			barrier1Hit--;
+    			if(barrier1Hit > 0)
+    			{
+            		eBullet.xPos = enemy.xPos;
+            		eBullet.yPos = enemy.yPos;
+            		eBulletMoving = false;
+    			}
+    			
+    		}
+    	}
+    	else if(eBullet.xPos <= barrier2.xPos + barrier2.size && eBullet.xPos >= barrier2.xPos)
+    	{
+    		if(eBullet.yPos <= barrier2.yPos + barrier2.size && eBullet.yPos >= barrier2.yPos) 
+    		{
+    			barrier2Hit--;
+    			if(barrier2Hit > 0)
+    			{
+            		eBullet.xPos = enemy.xPos;
+            		eBullet.yPos = enemy.yPos;
+            		eBulletMoving = false;
+    			}
+    		}
+    	}
+    	else if(eBullet.xPos <= barrier3.xPos + barrier3.size && eBullet.xPos >= barrier3.xPos)
+    	{
+    		if(eBullet.yPos <= barrier3.yPos + barrier3.size && eBullet.yPos >= barrier3.yPos) 
+    		{
+    			barrier3Hit--;
+    			if(barrier3Hit > 0)
+    			{
+            		eBullet.xPos = enemy.xPos;
+            		eBullet.yPos = enemy.yPos;
+            		eBulletMoving = false;
+    			}
+    		}
+    	}
+    	else if(eBullet.xPos <= barrier4.xPos + barrier4.size && eBullet.xPos >= barrier4.xPos)
+    	{
+    		if(eBullet.yPos <= barrier4.yPos + barrier4.size && eBullet.yPos >= barrier4.yPos) 
+    		{
+    			barrier4Hit--;
+    			if(barrier4Hit > 0)
+    			{
+            		eBullet.xPos = enemy.xPos;
+            		eBullet.yPos = enemy.yPos;
+            		eBulletMoving = false;
+    			}
+    		}
+    	}
+    	else
+    	{
+    		// Do nothing
+    	}
+    }
+    
+    public void checkEnemy()
+    {
+    	if(pBullet.xPos <= enemy.xPos + OBJ_SIZE && pBullet.xPos >= enemy.xPos)
+    	{
+    		if(pBullet.yPos <= enemy.yPos + OBJ_SIZE && pBullet.yPos >= enemy.yPos) 
+    		{
+    			resetEnemy = true;
+    			enemySpeed--;
         		moveEnemy();
         		pBullet.xPos = player.xPos;
         		pBullet.yPos = player.yPos;
@@ -138,51 +219,121 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void checkPlayer(){
+    public void checkPlayer()
+    {
     	if(eBullet.xPos <= player.xPos + OBJ_SIZE && eBullet.xPos >= player.xPos)
     	{
     		if(eBullet.yPos <= player.yPos + OBJ_SIZE && eBullet.yPos >= player.yPos) 
     		{
     			lives--;
-        		eBullet.xPos = enemy1.xPos;
-        		eBullet.yPos = enemy1.yPos;
+        		eBullet.xPos = enemy.xPos;
+        		eBullet.yPos = enemy.yPos;
         		eBulletMoving = false;
     		}
     	}
     }
     
-    public void moveEnemy(){
+    public void moveEnemy()
+    {
     	moveBullet();
-        if(checkUpperBounds(enemy1.xPos) == false) {
+        if(checkUpperBounds(enemy.xPos) == false) 
+        {
         	enemyDirection = -enemyDirection;
-        	enemy1.xPos += enemyDirection;
-        	enemy1.yPos += OBJ_SIZE;
+        	enemy.xPos += enemyDirection/enemySpeed;
+        	enemy.yPos += OBJ_SIZE;
         }
-        else if(checkLowerBounds(enemy1.xPos) == false) {
+        else if(checkLowerBounds(enemy.xPos) == false) 
+        {
         	enemyDirection = -enemyDirection;
-        	enemy1.xPos += enemyDirection;
-        	enemy1.yPos += OBJ_SIZE;
+        	enemy.xPos += enemyDirection/enemySpeed;
+        	enemy.yPos += OBJ_SIZE;
+        }
+        else if(resetEnemy == true)
+        {
+        	enemy.xPos = OBJ_SIZE;
+        	enemy.yPos = 0;
+        	resetEnemy = false;
+        	eBulletMoving = false;
         }
         else {
-        	enemy1.xPos += enemyDirection;
+        	enemy.xPos += enemyDirection/enemySpeed;
         }
-        
     }
     
-    public void paint(Graphics g){
+    public void paint(Graphics g)
+    {
         super.paint(g);
         Graphics2D G = (Graphics2D) g;
         
         G.setColor(Color.BLACK); // Background color
         G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
         
-        if(lives > 0)
+        if(enemySpeed < 3)
         {
-	        
-	        for(int i = 0; i < 4; i++){
-	        	G.setColor(Color.BLUE); 
-	            G.fillRect(i * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4, 64, 64);
-	        }
+        	G.setColor(Color.WHITE); // The on-screen text color
+	        G.drawString("YOU WIN!", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+        }
+        else if(lives > 0)
+        {
+        	if(barrier1Hit == 2)
+        	{
+        		G.setColor(Color.BLUE); 
+	            G.fillRect(barrier1.xPos, barrier1.yPos, barrier1.size, barrier1.size);
+        	}
+        	else if(barrier1Hit == 1)
+        	{
+        		G.setColor(Color.CYAN); 
+	            G.fillRect(barrier1.xPos, barrier1.yPos, barrier1.size, barrier1.size);
+        	}
+        	else
+        	{
+        		// Do nothing
+        	}
+            
+        	if(barrier2Hit == 2)
+        	{
+        		G.setColor(Color.BLUE); 
+	            G.fillRect(barrier2.xPos, barrier2.yPos, barrier2.size, barrier2.size);
+        	}
+        	else if(barrier2Hit == 1)
+        	{
+        		G.setColor(Color.CYAN); 
+	            G.fillRect(barrier2.xPos, barrier2.yPos, barrier2.size, barrier2.size);
+        	}
+        	else
+        	{
+        		// Do nothing
+        	}
+            
+        	if(barrier3Hit == 2)
+        	{
+        		G.setColor(Color.BLUE); 
+	            G.fillRect(barrier3.xPos, barrier3.yPos, barrier3.size, barrier3.size);
+        	}
+        	else if(barrier3Hit == 1)
+        	{
+        		G.setColor(Color.CYAN); 
+	            G.fillRect(barrier3.xPos, barrier3.yPos, barrier3.size, barrier3.size);
+        	}
+        	else
+        	{
+        		// Do nothing
+        	}
+
+        	if(barrier4Hit == 2)
+        	{
+        		G.setColor(Color.BLUE); 
+	            G.fillRect(barrier4.xPos, barrier4.yPos, barrier4.size, barrier4.size);
+        	}
+        	else if(barrier4Hit == 1)
+        	{
+        		G.setColor(Color.CYAN); 
+	            G.fillRect(barrier4.xPos, barrier4.yPos, barrier4.size, barrier4.size);
+        	}
+        	else
+        	{
+        		// Do nothing
+        	}
 	        
 	        G.setColor(Color.YELLOW); // Bullet color
 	        G.fillRect(pBullet.xPos, pBullet.yPos, OBJ_SIZE/4, OBJ_SIZE/4); // Creates player bullet on screen
@@ -194,18 +345,20 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 	        G.fillRect(eBullet.xPos, eBullet.yPos, OBJ_SIZE/4, OBJ_SIZE/4); // Creates enemy bullet on screen
 	        
 	        G.setColor(Color.RED); 
-	        G.fillRect(enemy1.xPos, enemy1.yPos, OBJ_SIZE, OBJ_SIZE);
+	        G.fillRect(enemy.xPos, enemy.yPos, OBJ_SIZE, OBJ_SIZE);
 	        
 	        G.setColor(Color.WHITE); // The on-screen text color
-	        G.drawString("Use the arrow keys to move!", 156, 156);
-	        G.drawString("Score: " + String.valueOf(score), 214, 166);
-	        G.drawString("Lives: " + String.valueOf(lives), 214, 176);
+	        G.drawString("Lives: " + String.valueOf(lives), 214, 196);
+	        G.drawString("Enemies left: " + String.valueOf(enemySpeed - 3), 214 - OBJ_SIZE/2, 206);
+	        G.drawString("Press Left & Right Arrows to Move", 214 - 2 * OBJ_SIZE, 166);
+	        G.drawString("Press Up Arrow to Fire", 214 - OBJ_SIZE, 176);
 	        
         }
         else
         {
         	G.setColor(Color.WHITE); // The on-screen text color
-	        G.drawString("GAME OVER", 156, 156);
+	        G.drawString("GAME OVER", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+	        G.drawString("OUT OF LIVES", BOUNDS_SIZE/2 - OBJ_SIZE - 5, BOUNDS_SIZE/2 - OBJ_SIZE + 20);
         }
         
         G.dispose();
@@ -240,9 +393,11 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     public void play()
     {
     	checkEnemy();
-    	moveBullet();
     	checkPlayer();
     	moveEnemy();
+    	moveBullet();
+    	enemyShoot();
+    	checkBarrier();
         repaint();
     }
     
@@ -261,12 +416,6 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         else if(e.getKeyCode() == 39)
         {
         	moveShipRight();
-        }
-        else if(e.getKeyCode() == 40)
-        {
-        	//moveDown
-        	fireEBullet();
-        	eBulletMoving = true;
         }
     }
 	
