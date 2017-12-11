@@ -386,6 +386,11 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	@Override
 	public void keyTyped(KeyEvent arg0) { }
 	
+	public void stop()
+    {
+    	timer.stop();
+    }
+	
 	private boolean checkBounds(int xBlock, int yBlock)
 	{
 		//check boundaries
