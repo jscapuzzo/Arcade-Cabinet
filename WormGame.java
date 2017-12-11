@@ -11,6 +11,7 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
 {
 	static final int OBJ_SIZE = 32; // The size of the worm and worm ford
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    static final int winScore = 100;
     static int xWorm = 0; // The x-position of the worm
     static int yWorm = 0; // The y-position of the worm
     int xFood = 64; // The x-position of the worm food
@@ -107,15 +108,24 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
         G.setColor(Color.WHITE); // Background color
         G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
         
-        G.setColor(Color.BLACK); // Worm color
-        G.fillRect(xWorm, yWorm, OBJ_SIZE, OBJ_SIZE); // Creates worm on screen
-        
-        G.setColor(Color.GREEN); // Worm food color
-        G.fillRect(xFood, yFood, OBJ_SIZE, OBJ_SIZE); // Creates worm food on screen
-        
-        G.setColor(Color.BLUE); // The on-screen text color
-        G.drawString("Use the arrow keys to move!", 156, 156);
-        G.drawString("Score: " + String.valueOf(score), 214, 166);
+        if(score < winScore)
+        {
+	        G.setColor(Color.BLACK); // Worm color
+	        G.fillRect(xWorm, yWorm, OBJ_SIZE, OBJ_SIZE); // Creates worm on screen
+	        
+	        G.setColor(Color.GREEN); // Worm food color
+	        G.fillRect(xFood, yFood, OBJ_SIZE, OBJ_SIZE); // Creates worm food on screen
+	        
+	        G.setColor(Color.BLUE); // The on-screen text color
+	        G.drawString("Use the arrow keys to move!", 166, 156);
+	        G.drawString("Get " + winScore + " to win!", 200, 166);
+	        G.drawString("Score: " + String.valueOf(score), 214, 186);
+        }
+        else
+        {
+        	G.setColor(Color.BLACK); // The on-screen text color
+	        G.drawString("YOU WIN!", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+        }
         G.dispose();
     }
 
