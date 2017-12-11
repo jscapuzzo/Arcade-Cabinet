@@ -1,6 +1,5 @@
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.GridLayout;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -40,6 +39,7 @@ public class ArcadeGUI
 	private PaddleGame game1;
 	private WormGame game2;
 	private SpaceGame game3;
+	private TetrisGame game4;
 	
 	/**
 	 * Launch the application.
@@ -257,6 +257,11 @@ public class ArcadeGUI
 		gameChoiceToolBar.addSeparator();
 		gameChoiceToolBar.add(rdbtnGame3);
 		
+		final JRadioButton rdbtnGame4 = new JRadioButton("Tetris Game");
+		rdbtnGame4.setFont(new Font("Arial", Font.PLAIN, 15));
+		gameChoiceToolBar.addSeparator();
+		gameChoiceToolBar.add(rdbtnGame4);
+		
 		JButton btnSubmitChoice = new JButton("Submit");
 		
 		btnSubmitChoice.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -283,6 +288,10 @@ public class ArcadeGUI
 				else if(rdbtnGame3.isSelected())
 				{
 					register(rdbtnGame3);
+				}
+				else if(rdbtnGame4.isSelected())
+				{
+					register(rdbtnGame4);
 				}
 			}
 		});
@@ -330,6 +339,13 @@ public class ArcadeGUI
 				game3.stop();
 			}
 			
+			if(game4 != null)
+			{
+				gameFrame.removeKeyListener(game4);
+				gameFrame.remove(game4);
+				game4.stop();
+			}
+			
 			gameFrame.addKeyListener(game1);
 			gameFrame.getContentPane().add(game1);
 			gameFrame.revalidate();
@@ -357,6 +373,13 @@ public class ArcadeGUI
 				gameFrame.removeKeyListener(game3);
 				gameFrame.remove(game3);
 				game3.stop();
+			}
+			
+			if(game4 != null)
+			{
+				gameFrame.removeKeyListener(game4);
+				gameFrame.remove(game4);
+				game4.stop();
 			}
 			
 			gameFrame.addKeyListener(game2);
@@ -388,8 +411,51 @@ public class ArcadeGUI
 				game2.stop();
 			}
 			
+			if(game4 != null)
+			{
+				gameFrame.removeKeyListener(game4);
+				gameFrame.remove(game4);
+				game4.stop();
+			}
+			
 			gameFrame.addKeyListener(game3);
 			gameFrame.getContentPane().add(game3);
+			gameFrame.revalidate();
+			gameFrame.pack();
+			gameFrame.setVisible(true);
+		}
+		else if(button.getText().equals("Tetris Game"))
+		{
+			game4 = new TetrisGame();
+			gameFrame.setVisible(false);
+			gameFrame.setTitle("Tetris Game");
+			gameFrame.setFocusable(true);
+			gameFrame.requestFocusInWindow();
+			gameFrame.setFocusTraversalKeysEnabled(false);
+			
+			if(game1 != null)
+			{
+				gameFrame.removeKeyListener(game1);
+				gameFrame.remove(game1);
+				game1.stop();
+			}
+			
+			if(game2 != null)
+			{
+				gameFrame.removeKeyListener(game2);
+				gameFrame.remove(game2);
+				game2.stop();
+			}
+			
+			if(game3 != null)
+			{
+				gameFrame.removeKeyListener(game3);
+				gameFrame.remove(game3);
+				game3.stop();
+			}
+			
+			gameFrame.addKeyListener(game4);
+			gameFrame.getContentPane().add(game4);
 			gameFrame.revalidate();
 			gameFrame.pack();
 			gameFrame.setVisible(true);
