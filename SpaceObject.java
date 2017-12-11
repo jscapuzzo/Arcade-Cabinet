@@ -6,7 +6,7 @@ public class SpaceObject {
 	public int size = 0;
 	public int xPos = 0;
 	public int yPos = 0;
-	private final int BARRIER_SIZE = 32;
+	private final int BARRIER_SIZE = 64;
 	private final int SHIP_SIZE = 32;
 	private final int BULLET_SIZE = 4;
 	
@@ -24,30 +24,29 @@ public class SpaceObject {
 			throw new IndexOutOfBoundsException("Value must be 0, 1, or 2!");
 		}
 	}
-	public void setPosition(int x, int y){
-		xPos = x;
-		yPos = y;
+	public void setPosition(int xPosition, int yPosition){
+		xPos = xPosition;
+		yPos = yPosition;
 	}
 	
-	private void initialSetup(int submittedAllyType, int submittedObjectType, int x, int y) {
-		if(submittedAllyType >= 0 && submittedAllyType <= 2){
-			allyType = submittedAllyType;
-			objectType = submittedObjectType;
+	private void initialSetup(int xPosition, int yPosition) {
+		if(allyType >= 0 && allyType <= 2){
 		}
 		else{
 			throw new IndexOutOfBoundsException("Value must be 0, 1, or 2!");
 		}
-		if(submittedObjectType >= 0 && submittedObjectType <= 2){
-			objectType = submittedObjectType;
+		if(objectType >= 0 && objectType <= 2){
 		}
 		else{
 			throw new IndexOutOfBoundsException("Value must be 0, 1, or 2!");
 		}
-		setPosition(x, y);
-		setSize(submittedObjectType);
+		setPosition(xPosition, yPosition);
+		setSize(objectType);
 	}
 	
-	public SpaceObject(int submittedAllyType, int submittedObjectType, int x, int y) {
-		initialSetup(submittedAllyType, submittedObjectType, x, y);
+	public SpaceObject(int submittedAllyType, int submittedObjectType, int xPosition, int yPosition) {
+		allyType = submittedAllyType;
+		objectType = submittedObjectType;
+		initialSetup(xPosition, yPosition);
 	}
 }
