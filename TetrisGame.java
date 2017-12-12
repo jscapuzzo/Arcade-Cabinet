@@ -10,8 +10,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 {
 	static final int OBJ_SIZE = 32; 	// The size of the worm and worm ford
     static final int BOUNDS_SIZE = 512; 	//The size of the game boundaries
-    static final int HEIGHT = BOUNDS_SIZE/OBJ_SIZE;
-    static final int WIDTH = BOUNDS_SIZE/OBJ_SIZE;
+    static final int HEIGHT = BOUNDS_SIZE/OBJ_SIZE; //matrix height
+    static final int WIDTH = BOUNDS_SIZE/OBJ_SIZE;	//matrix width
     
     private Timer timer;			//starts the actionlistener
     private TetrisBlock block;		//current block that is falling
@@ -20,7 +20,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private boolean falling = true;	//piece is falling or not
     private int lines = 0;		//number of cleared lines
     private int score = 0; 		//The player's score
-    boolean gameOver;
+    boolean gameOver = false;
     
     private int xBlock = 0;
     private int yBlock = 0;
@@ -208,6 +208,37 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     }
     
     /**
+     * Rotate the current block if possible. 
+     */
+    private void rotate()
+    {
+    	//create deep copy of current block
+    	TetrisBlock t = new TetrisBlock(block);
+    	
+    	//rotate the tester block
+    	t.rotateLeft();
+    	int[][] bCoords = t.getCoordinateArr();
+    	
+    	//check if tester block is in bounds
+    	for(int i = 0; i < bCoords.length; i++)
+    	{
+    		int x = xBlock + bCoords[i][0];
+    		int y = yBlock - bCoords[i][1];
+    		
+    		System.out.println(x);
+    		System.out.println(y);
+    		
+    		if(!checkBounds(x,y))
+    		{
+    			return;
+    		}
+    	}
+    	
+    	//it passed so rotate it
+    	block = t;
+    }
+    
+    /**
      * After collision, piece is added permanently added to the matrix
      */
     private void lockPieceIn()
@@ -362,7 +393,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         {
         	//blocks can't rotate near edges.
         	//this causes the game to crash.
-        	block.rotateLeft();
+        	rotate();
         }
         else if(e.getKeyCode() == 39) //right arrow key
         {
@@ -385,11 +416,6 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 
 	@Override
 	public void keyTyped(KeyEvent arg0) { }
-	
-	public void stop()
-    {
-    	timer.stop();
-    }
 	
 	private boolean checkBounds(int xBlock, int yBlock)
 	{
