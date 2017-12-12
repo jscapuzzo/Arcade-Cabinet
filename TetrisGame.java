@@ -14,11 +14,10 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     static final int WIDTH = BOUNDS_SIZE/OBJ_SIZE;	//matrix width
     
     private Timer timer;			//starts the actionlistener
-    private TetrisBlock block;		//current block that is falling
+    private TetrisBlock block;		//new block in the matrix
     private TetrisBlock[][] matrix;	//matrix of blocks
     
-    private boolean falling = true;	//piece is falling or not
-    private int lines = 0;		//number of cleared lines
+    private int linesCleared = 0;		//number of cleared lines
     private int score = 0; 		//The player's score
     boolean gameOver = false;
     
@@ -60,11 +59,10 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         
         xBlock = (int) (WIDTH / 2);
         yBlock = HEIGHT - 1 + block.getMinYCoord();
-        falling = true;
     }
     
     /**
-     * Initalize matrix with null blocks
+     * Initialize matrix with null blocks
      */
     private void resetMatrix()
     {
@@ -94,31 +92,31 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         
         int[][] bCoords = block.getCoordinateArr(); //current block coordinates
         
-        //Paint existing blocks first        
-        for (int i = 0; i < HEIGHT; i++) 
+        //loops to paint blocks
+        for(int i = 0; i < HEIGHT; i++) 
         {
-            for (int j = 0; j < WIDTH; j++) 
+        	//paint existing block first and don't go out of bounds
+            if(i < bCoords.length && block != null && block.getBlockType() != "nullBlock")
+            {
+            	int x = xBlock + bCoords[i][0];
+                int y = yBlock - bCoords[i][1];
+                    
+                G.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
+            	
+            }
+            
+            //paint the "locked in" blocks next
+            for(int j = 0; j < WIDTH; j++) 
             {
                 TetrisBlock t = getBlock(j, i);
                 
                 if(t != null && t.getBlockType() != "nullBlock")
                 {
                 	//draw the block
-                    g.fillRect(j * OBJ_SIZE, (HEIGHT - 1 - i) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
+                	
+                    G.fillRect(j * OBJ_SIZE, (HEIGHT - 1 - i) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
                 }
             }
-        }
-
-        //then paint our current block
-        if (block != null && block.getBlockType() != "nullBlock")
-        {
-        	for(int k = 0; k < bCoords.length; k++)
-        	{
-                int x = xBlock + bCoords[k][0];
-                int y = yBlock - bCoords[k][1];
-                
-                g.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
-        	}
         }
         
         G.dispose();
@@ -133,21 +131,21 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	
     	int[][] bCoords = block.getCoordinateArr();
     	
-
     	for(int i = 0; i < bCoords.length; i++)
     	{
     		int x = xPos + bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
-            if(!checkBounds(x, y))
+    		//check for bounds and collisions
+            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
             {
             	//out of bounds.  kill method
             	return;
             }
     	}
    
+    	//able to be moved so update
     	xBlock = xPos;
-    	repaint();
     }
     
     /**
@@ -164,16 +162,15 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xPos + bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
-            if(!checkBounds(x, y))
+            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
             {
             	//out of bounds. kill method
             	return;
             }
     	}
     	
+    	//able to be moved, so update
     	xBlock = xPos;
-    	
-    	repaint();
     }
     
     /**
@@ -190,21 +187,17 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xBlock + bCoords[i][0];
     		int y = yPos - bCoords[i][1];
     		
-    		
-    		
-            if(!checkBounds(x, y))
+            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
             {
             	//out of bounds, lock piece in and end method
             	lockPieceIn();
             	clearLines();
+            	newBlock();
             	return;
             }
     	}
     	
     	yBlock = yPos;
-        
-    	repaint();
-    
     }
     
     /**
@@ -225,10 +218,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xBlock + bCoords[i][0];
     		int y = yBlock - bCoords[i][1];
     		
-    		System.out.println(x);
-    		System.out.println(y);
-    		
-    		if(!checkBounds(x,y))
+    		if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
     		{
     			return;
     		}
@@ -243,22 +233,20 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      */
     private void lockPieceIn()
     {
-    	falling = false;
-    	
     	int[][] bCoords = block.getCoordinateArr();
     	
     	for(int i = 0; i < bCoords.length; i++)
     	{
-            int x = xBlock + bCoords[i][0];
+    		int x = xBlock + bCoords[i][0];
             int y = yBlock - bCoords[i][1];
           
             //check for game condition
-        	if((yBlock - block.getMinYCoord()) >= HEIGHT - 1)
+            int check = yBlock - block.getMinYCoord();
+        	if(!checkBounds(check, HEIGHT - 1))
             {
         		gameOver = true;
-        		falling = false;
             }
-        	
+            
             matrix[y][x] = block;
         }
         
@@ -272,69 +260,51 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private void clearLines()
     {
     	int count = 0;
-         
-        int i = HEIGHT - 1;
-        
-        //go down entire array
-        while(i >= 0)
-        {
-            boolean full = true;
-
-            //check entire array for an empty line
-            for(int j = 0; j < WIDTH; j++) 
-            {
-            	TetrisBlock t = getBlock(j, i);
-            	
-                if(t == null || t.getBlockType() == "nullBlock") 
-                {
-                    full = false;
-                    break;
-                }
-            }
-
-            //no empty line found
-            if(full == true) 
-            {   
-            	//for all lines that are below a full line
-            	//replace full line with line above
-            	for(int k = i; k < HEIGHT - 1; k++)
-                {
-            		for(int m = 0; m < WIDTH; m++)
-                    {
-            			matrix[k][m] = getBlock(m, k + 1);
-                    }
-            	}
-       
-                count++;
-            }
-            
-            i--;
-        }
-
+    	
+    	/*
+    	 * Must check entire array due to split lines (i.e. line 3 and 1 are full, but 2 isn't)
+    	 */
+    	int i = HEIGHT - 1;
+    	while(i >= 0)
+    	{
+    		int j = 0;
+    		while(checkBounds(j, WIDTH))
+    		{
+    			TetrisBlock t = getBlock(j, i);
+     
+    			if(t == null || t.getBlockType() == "nullBlock") 
+              	{
+                  	break;
+              	}
+    			
+    			j++;
+    		}
+    		   	 
+        	if(j == WIDTH)
+        	{
+        		/**
+        		 * Method call does 3 things:
+        		 * 1. remove row i from matrix
+        		 * 2. shift rows above down
+        		 * 3. add empty space up top
+        		 */
+        		
+        		matrix = removeLine(i);
+        	}
+        	
+        	i--;
+    	}
+        	
         //update score and repaint with new lines
-        if (count > 0) 
+        if(count > 0)
         {
-            lines += count;
-            addScore(lines);
-            
-            //reset block to avoid confusion. 
-            //Note: had a crazy bug occur when I cleared two lines, so this is necessary although seemingly redundant.
-            block = TetrisBlock.createNullBlock();
-            
-            repaint();
+   	 		score += Math.pow(2, count);
+   	 		repaint();
         }
+   	 	
     }
     
-    /**
-     * Calculate new score based on amount of lines cleared.
-     * @param num Amount of lines cleared
-     */
-    private void addScore(int num)
-    {
-    	score += Math.pow(2, num);
-    }
-    
-	@Override
+    @Override
 	/**
 	 * Automatically begins with Timer instance.
 	 * Only calls play() method for easier debugging.
@@ -349,32 +319,15 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      */
     public void play()
     {
-    	/**
-    	 * Create piece
-    	 * 		done
-    	 * Move piece
-    	 * 		Conditions for piece: 1. Can it be rotated (due to boundaries)? 2. Can it move (due to boundaries)
-    	 * 			Done
-    	 * Lock piece in.
-    	 * 		Done
-    	 * Check if line is full or if we topped out
-    	 * 		Full line checked. Topped out can be implemented last
-    	 * Re-loop
-    	 */
-    	
     	if(gameOver)
     	{
     		timer.stop();
+    		//enter game over state
     		return;
     	}
-    	else if(!falling) //piece is not falling, make a new one 
+    	else
     	{
-    		//check game over
-    		falling = true;
-    		newBlock();
-    	} 
-    	else //piece is falling, automatically move it down
-    	{
+    		//not in game over, automatically move piece
     		moveDown();
     	}
     	
@@ -391,8 +344,6 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 		}
         else if(e.getKeyCode() == 38) //up arrow key
         {
-        	//blocks can't rotate near edges.
-        	//this causes the game to crash.
         	rotate();
         }
         else if(e.getKeyCode() == 39) //right arrow key
@@ -404,44 +355,122 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         	moveDown();
         }
 		
+		repaint();
+		
 		/*
 		 * In real tetris, the space bar automatically pushes the piece to the bottom. 
 		 * Also, maybe we should have a pause and resume feature
 		 */
 	}
 	
-	//Following methods do nothing and are purely to keep interface happy
+	/*Following methods do nothing and are purely to keep interface happy*/
 	@Override
 	public void keyReleased(KeyEvent arg0) { }
 
 	@Override
 	public void keyTyped(KeyEvent arg0) { }
+	/*End of useless methods*/
 	
-	private boolean checkBounds(int xBlock, int yBlock)
+	/**
+	 * Check if the integer is within bounds
+	 * @param position
+	 * @param bound
+	 * @return
+	 */
+    public boolean checkBounds(int position, int bound)
+    {
+    	if(position < 0)	//out of bounds
+    	{
+    		return false;
+    	}
+    	else if(position >= bound)	//out of bounds
+    	{
+    		return false;
+    	}
+    	
+    	return true;
+    }
+	
+	/**
+	 * Check if block is colliding with another block
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	private boolean checkCollision(int x, int y)
 	{
-		//check boundaries
-		if (xBlock < 0 || yBlock < 0 || xBlock >= WIDTH || yBlock >= HEIGHT)
-        {
-            return false;
-            
-        }
-		
 		//check for collision
-		if (getBlock(xBlock, yBlock) != null && !getBlock(xBlock, yBlock).getBlockType().equals("nullBlock"))
+		if (getBlock(x, y) != null && getBlock(x, y).getBlockType() != "nullBlock")
 		{
-			return false;
+			//we have a collision
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 	
-	/*
-	 * Get block at certain board position
+	/**
+	 * Get block at matrix location
+	 * @param x
+	 * @param y
+	 * @return
 	 */
 	private TetrisBlock getBlock(int x, int y) 
 	{ 
 		return matrix[y][x];
 	}
+	
+	public TetrisBlock[][] removeLine(int flag)
+    {
+        TetrisBlock[][] copy= new TetrisBlock[HEIGHT][WIDTH];
+        
+        int count = 0;
+
+        if(flag == HEIGHT - 1)
+        {
+            for(int i = 0; i < HEIGHT - 1; i++)
+            { 
+                for(int j = 0; j < WIDTH; j++)
+                {    
+                    if(flag == i)
+                    {
+                    	
+                    }	  
+                    else
+                    {
+                    	copy[i][j] = matrix[i][j];
+                    }
+                }
+               
+                count++;
+            }
+        }
+        else
+        {
+            for(int i = 0; i < HEIGHT; i++)
+            { 
+                for(int j =  0; j < WIDTH; j++)
+                {    
+                    if(i == flag)
+                    {
+                       	i++;
+                    }
+                    
+                    if(i + 1 == HEIGHT)
+                    {
+                    	copy[i][j] = TetrisBlock.createNullBlock();
+                    }
+                    
+                    
+                    copy[count][j] = matrix[i][j];
+                }
+                
+                count++;
+            }  
+        }
+        
+        return copy;
+    }
 
     public static void main(String[] args) throws InterruptedException
     {
