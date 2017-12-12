@@ -1,31 +1,9 @@
-import java.awt.EventQueue;
-import java.awt.Font;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import java.awt.*;
+import javax.swing.*;
+import javax.swing.border.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JRadioButton;
-
-import java.awt.BorderLayout;
-
-import java.awt.Dimension;
-
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.EmptyBorder;
 
 public class ArcadeGUI 
 {
@@ -77,6 +55,7 @@ public class ArcadeGUI
 	 * Initialize the contents of the frame.
 	 * @throws InterruptedException 
 	 */
+	@SuppressWarnings("static-access")
 	private void initialize() throws InterruptedException 
 	{
 		layoutFrame = new BorderLayout(50, 50);
@@ -118,6 +97,7 @@ public class ArcadeGUI
 	/**
 	 * Initialize the menu bar that allows users to see scores and instructions.
 	 */
+	@SuppressWarnings("static-access")
 	private void initMenuBar() 
 	{
 		JMenu fileMenu = new JMenu("Help");
@@ -150,6 +130,7 @@ public class ArcadeGUI
 	 * Initialize the frame where games are played.
 	 * @throws InterruptedException
 	 */
+	@SuppressWarnings("static-access")
 	private void initGameFrame() throws InterruptedException
 	{
 		gameFrame.setFocusable(true);
@@ -166,6 +147,7 @@ public class ArcadeGUI
 	/**
 	 * Initialize the toolbars that allow users to switch themes and games
 	 */
+	@SuppressWarnings("static-access")
 	private void initToolBars()
 	{
 		
