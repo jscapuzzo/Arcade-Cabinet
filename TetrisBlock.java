@@ -1,3 +1,5 @@
+import java.awt.Color;
+
 /**
  * Creates a Tetris block, using coordinates as the main guidance. 
  * Coordinates are imagined in a x-y or R2 plane. This allows for convenient rotation. 
@@ -10,15 +12,17 @@ public class TetrisBlock
 {
 	private int[][] coordinates;
 	private String blockType; 
+	private Color color;
     /**
      * Parameterized constructor. Makes a Tetris block from input.
      * @param coordinates
      * @param type
      */
-    public TetrisBlock(int[][] coordinates, String type)
+    public TetrisBlock(int[][] coordinates, String type, Color paint)
     {
         this.coordinates = coordinates;
         blockType = type;
+        color = paint;
     }
     
     /**
@@ -35,7 +39,7 @@ public class TetrisBlock
      */
     public TetrisBlock(final TetrisBlock block)
     {
-    	int arr[][] = arr = block.getCoordinateArr();
+    	int arr[][] = block.getCoordinateArr();
     	coordinates = new int[4][2];
     	
     	for(int i = 0; i < 4; i++)
@@ -51,10 +55,15 @@ public class TetrisBlock
     {
         return blockType;
     }
+    
+    public Color getBlockColor()
+    {
+    	return color;
+    }
 
     public static TetrisBlock createRandomBlock()
     {
-        int x = (int) (Math.random() * 7) + 1;
+        int x = (int) Math.floor(Math.random() * 7) + 1;
         
         if(x == 1)
         {
@@ -163,7 +172,9 @@ public class TetrisBlock
 										};
 										
 		String name = "nullBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.WHITE;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createZBlock()
@@ -177,7 +188,9 @@ public class TetrisBlock
 								};
 		
 		String name = "zBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.RED;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createSBlock()
@@ -191,7 +204,9 @@ public class TetrisBlock
 										};
 		
 		String name = "sBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.DARK_GRAY;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createLineBlock()
@@ -205,7 +220,9 @@ public class TetrisBlock
 										};
 		
 		String name = "lineBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.CYAN;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	public static TetrisBlock createTBlock()
@@ -218,7 +235,9 @@ public class TetrisBlock
 											{0, 1} 
 										};
 		String name = "tBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.GREEN;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createSquareBlock()
@@ -232,7 +251,9 @@ public class TetrisBlock
 										};
 										
 		String name = "squareBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.MAGENTA;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createLBlock()
@@ -246,7 +267,9 @@ public class TetrisBlock
 										};
 										
 		String name = "lBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.ORANGE;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static TetrisBlock createMirrorLBlock()
@@ -260,7 +283,9 @@ public class TetrisBlock
 										};
 										
 		String name = "mirrorLBlock";
-		return new TetrisBlock(coordinates, name);
+		Color color = Color.YELLOW;
+		
+		return new TetrisBlock(coordinates, name, color);
 	}
 	
 	private static int[][] transpose(int[][] arr) 
