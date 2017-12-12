@@ -29,6 +29,24 @@ public class TetrisBlock
         createNullBlock();
     }
 
+    /**
+     * Copy constructor for testing rotations
+     * @param block
+     */
+    public TetrisBlock(final TetrisBlock block)
+    {
+    	int arr[][] = arr = block.getCoordinateArr();
+    	coordinates = new int[4][2];
+    	
+    	for(int i = 0; i < 4; i++)
+    	{
+    		coordinates[i][0] = arr[i][0];
+    		coordinates[i][1] = arr[i][1];
+    	}
+    	
+    	this.blockType = block.getBlockType();
+    }
+    
     public String getBlockType() 
     {
         return blockType;
@@ -276,21 +294,6 @@ public class TetrisBlock
 		  }
 		
 		  return arr;
-	}
-	
-	private static int[][] reverseColumns(int[][] arr)
-	{
-        for(int col = 0;col < arr[0].length; col++)
-        {
-            for(int row = 0; row < arr.length/2; row++)
-            {
-                int temp = arr[row][col];
-                arr[row][col] = arr[arr.length - row - 1][col];
-                arr[arr.length - row - 1][col] = temp;
-            }
-        }
-		
-		return arr;
 	}
 	
 	public static void main(String[] args)
