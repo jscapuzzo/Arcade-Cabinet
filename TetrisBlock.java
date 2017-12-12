@@ -13,10 +13,12 @@ public class TetrisBlock
 	private int[][] coordinates;
 	private String blockType; 
 	private Color color;
+	
     /**
      * Parameterized constructor. Makes a Tetris block from input.
      * @param coordinates
      * @param type
+     * @param paint
      */
     public TetrisBlock(int[][] coordinates, String type, Color paint)
     {
@@ -49,18 +51,31 @@ public class TetrisBlock
     	}
     	
     	this.blockType = block.getBlockType();
+    	this.color = block.getBlockColor();
     }
     
+    /**
+     * Getter for block type
+     * @return
+     */
     public String getBlockType() 
     {
         return blockType;
     }
     
+    /**
+     * Getter for block color
+     * @return
+     */
     public Color getBlockColor()
     {
     	return color;
     }
 
+    /**
+     * Make a random block
+     * @return
+     */
     public static TetrisBlock createRandomBlock()
     {
         int x = (int) Math.floor(Math.random() * 7) + 1;
@@ -103,46 +118,26 @@ public class TetrisBlock
         return null;
     }
     
+    /**
+     * Rotate the block 90 degrees CCW.
+     */
     public void rotateLeft() 
     {
-        if(blockType == "squareBlocK") 
+        if(blockType == "squareBlock") 
         {
             return;
         }
         else
-        {
-        	/*
-       		 * Transpose
-       		 * Reverse each row
-       		 */
-        	int[][] arr = coordinates;
-        	 
-        	
-        	arr = transpose(reverseRows(arr));
-        	coordinates = arr;
+        {	        
+        	//transpose, then reverse each row.
+        	transpose();
+        	reverseRows();
         }
     }
     
     /*
-     * The following mutator methods are to assist us in keeping our methods static. 
-     * The logic is that in our game we will be calling rotatemethods with a certain block,
-     * and we will not have access to mutate that block's variables for security reasons.
-     */
-    
-    
-    /*
      * Getters can be public, and will assist us in boundary checking
      */
-    
-    public int getXCoordinates(int row)
-    {
-    	return coordinates[row][0];
-    }
-    
-    public int getYCoordinates(int row)
-    {
-    	return coordinates[row][1];
-    }
     
     public int[][] getCoordinateArr()
     {
@@ -151,15 +146,24 @@ public class TetrisBlock
     
     public int getMinYCoord() 
     {
-    	int min = coordinates[0][1];
+    	int minValue = coordinates[0][1];
+    	
+        for (int i = 1; i < coordinates.length; i++) 
+        {
+            if (coordinates[i][1] < minValue) 
+            {
+                minValue = coordinates[i][1];
+            }
+        }
       
-    	for (int i = 1; i < 4; i++) 
-    	{
-    		min = Math.min(min, coordinates[i][1]);
-    	}
-      
-    	return min;
+    	return minValue;
     }
+    
+    
+    /*
+     * The following methods create instances of special blocks used in Tetris.
+     * Only the null block is public since it can be used to initialize TetrisBlock coordinatesays
+     */
     
     public static TetrisBlock createNullBlock()
 	{
@@ -181,10 +185,10 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{ 
-											{0, -1}, 
-											{0, 0}, 
-											{-1, 0}, 
-											{-1, 1} 
+											{0, 1},
+											{1, 1},
+											{1, 0},
+											{2, 0}
 								};
 		
 		String name = "zBlock";
@@ -197,14 +201,14 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{ 
-											{0, -1}, 
-											{0, 0}, 
-											{1, 0}, 
-											{1, 1} 
+											{0, 1},
+											{0, 2},
+											{1, 0},
+											{1, 1}
 										};
 		
 		String name = "sBlock";
-		Color color = Color.DARK_GRAY;
+		Color color = Color.RED.darker();
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
@@ -213,29 +217,29 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{
-											{0, -1}, 
-											{0, 0}, 
-											{0, 1}, 
-											{0, 2} 
+											{0, 0},
+											{0, 1},
+											{0, 2},
+											{0, 3}
 										};
 		
 		String name = "lineBlock";
-		Color color = Color.CYAN;
+		Color color = Color.MAGENTA.darker();
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
 	
-	public static TetrisBlock createTBlock()
+	private static TetrisBlock createTBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{ 
-											{-1, 0}, 
-											{0, 0}, 
-											{1, 0}, 
-											{0, 1} 
+											{0, 0},
+											{1, 0},
+											{1, 1},
+											{2, 0}
 										};
 		String name = "tBlock";
-		Color color = Color.GREEN;
+		Color color = Color.GREEN.darker();
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
@@ -251,7 +255,7 @@ public class TetrisBlock
 										};
 										
 		String name = "squareBlock";
-		Color color = Color.MAGENTA;
+		Color color = Color.BLACK;
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
@@ -260,14 +264,14 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{
-											{-1, -1}, 
-											{0, -1}, 
-											{0, 0}, 
-											{0, 1} 
+											{0, 0},
+											{0, 1},
+											{0, 2},
+											{1, 0}
 										};
 										
 		String name = "lBlock";
-		Color color = Color.ORANGE;
+		Color color = Color.DARK_GRAY;
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
@@ -276,49 +280,47 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{
-											{1, -1}, 
-											{0, -1}, 
-											{0, 0}, 
-											{0, 1} 
+											{0, 0},
+											{1, 0},
+											{1, 1},
+											{1, 2}
 										};
 										
 		String name = "mirrorLBlock";
-		Color color = Color.YELLOW;
+		Color color = Color.GRAY;
 		
 		return new TetrisBlock(coordinates, name, color);
 	}
 	
-	private static int[][] transpose(int[][] arr) 
+	private void transpose() 
 	{
-        if (arr.length > 0) 
-        {
-            for (int i = 0; i < 2; i++) //row length
-            {
-                for (int j = 0; j < 2; j++) //column length
-                {
-                	int temp = arr[i][j];
-                    arr[i][j] = arr[j][i];
-                    arr[j][i] = temp;
-                }
-            }
-        }
-        
-        return arr;
+		for (int i = 0; i < 2; i++) //row length
+		{
+			for (int j = 0; j < 2; j++) //column length
+			{
+				int temp = coordinates[i][j];
+				coordinates[i][j] = coordinates[j][i];
+                coordinates[j][i] = temp;
+			}
+		}
     }
 	
-	private static int[][] reverseRows(int[][] arr)
+	/*
+	 * The following methods are used for matrix operations.
+	 * These can probably be reused in another project at some point.
+	 */
+	
+	private void reverseRows()
 	{
-		  for(int row = 0; row < arr.length; row++)
-		  {
-		        for(int col = 0; col < arr[row].length / 2; col++) 
-		        {
-		            int temp = arr[row][col] * -1;
-		            arr[row][col] = arr[row][arr[row].length - col - 1];
-		            arr[row][arr[row].length - col - 1] = temp;
-		        }
-		  }
-		
-		  return arr;
+		for(int row = 0; row < coordinates.length; row++)
+		{
+			for(int col = 0; col < coordinates[row].length / 2; col++) 
+		    {
+		        int temp = coordinates[row][col] * -1;
+		        coordinates[row][col] = coordinates[row][coordinates[row].length - col - 1];
+		        coordinates[row][coordinates[row].length - col - 1] = temp;
+		    }
+		}	
 	}
 	
 	public static void main(String[] args)
