@@ -24,6 +24,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private int xBlock = 0;
     private int yBlock = 0;
     
+    private JLabel scoreLabel;
+    
     
 
     /**
@@ -36,12 +38,14 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         
         //initialize the board
         resetMatrix();
+        scoreLabel = new JLabel();
         newBlock();
         
     	//sets the gui to read keystrokes and make it the focus
     	addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
+        add(scoreLabel);
         
         //the following was grabbed off Oracle's swing tutorial online
         //essentially it just automatically starts the game with a delay and sets the speed of the game
@@ -85,22 +89,30 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         
         Graphics2D G = (Graphics2D) g;
         
+        if(gameOver)
+        {
+        	G.setColor(Color.BLACK); // The on-screen text color
+	        G.drawString("GAME OVER", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+	        return;
+        }
+        
         G.setPaint(Color.WHITE); //set background to be white
         G.fillRect(0, 0, 512, 512);
         
-        G.setPaint(Color.GRAY); //pieces paint to gray
+        //G.setColor(Color.GRAY); //pieces paint to gray
         
         int[][] bCoords = block.getCoordinateArr(); //current block coordinates
         
         //loops to paint blocks
         for(int i = 0; i < HEIGHT; i++) 
         {
+        	G.setColor(block.getBlockColor());
         	//paint existing block first and don't go out of bounds
             if(i < bCoords.length && block != null && block.getBlockType() != "nullBlock")
             {
             	int x = xBlock + bCoords[i][0];
                 int y = yBlock - bCoords[i][1];
-                    
+                
                 G.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
             	
             }
@@ -109,6 +121,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
             for(int j = 0; j < WIDTH; j++) 
             {
                 TetrisBlock t = getBlock(j, i);
+                G.setColor(t.getBlockColor());
                 
                 if(t != null && t.getBlockType() != "nullBlock")
                 {
@@ -119,6 +132,11 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
             }
         }
         
+        G.setColor(Color.BLACK);
+        G.drawString("Score: " + String.valueOf(score), 440, 10);
+        G.drawString("Lines Cleared: " + String.valueOf(linesCleared), 395, 25);
+        G.drawString("Use the arrow keys to move left, right, and down", 227, 40);
+        G.drawString("Use the UP arrow key to rotate", 320, 55);
         G.dispose();
     }
     
@@ -282,7 +300,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		   	 
         	if(j == WIDTH)
         	{
-        		/**
+        		/*
         		 * Method call does 3 things:
         		 * 1. remove row i from matrix
         		 * 2. shift rows above down
@@ -290,6 +308,8 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         		 */
         		
         		matrix = removeLine(i);
+        		linesCleared++;
+        		count++;
         	}
         	
         	i--;
@@ -298,7 +318,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         //update score and repaint with new lines
         if(count > 0)
         {
-   	 		score += Math.pow(2, count);
+   	 		score += Math.pow(3, count);
    	 		repaint();
         }
    	 	
@@ -322,12 +342,11 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	if(gameOver)
     	{
     		timer.stop();
-    		//enter game over state
     		return;
     	}
     	else
     	{
-    		//not in game over, automatically move piece
+    		//not game over, automatically move piece
     		moveDown();
     	}
     	
@@ -420,7 +439,12 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 		return matrix[y][x];
 	}
 	
-	public TetrisBlock[][] removeLine(int flag)
+	/**
+	 * Removes a line from the matrix and replaces it with a null space.
+	 * @param flag
+	 * @return
+	 */
+	private TetrisBlock[][] removeLine(int flag)
     {
         TetrisBlock[][] copy= new TetrisBlock[HEIGHT][WIDTH];
         
@@ -432,7 +456,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
             { 
                 for(int j = 0; j < WIDTH; j++)
                 {    
-                    if(flag == i)
+                    if(i == flag)
                     {
                     	
                     }	  
@@ -460,8 +484,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
                     {
                     	copy[i][j] = TetrisBlock.createNullBlock();
                     }
-                    
-                    
+                             
                     copy[count][j] = matrix[i][j];
                 }
                 
@@ -472,12 +495,18 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         return copy;
     }
 
+	/**
+	 * Stop the game
+	 */
+	public void stop()
+	{
+		timer.stop();
+	}
+	
     public static void main(String[] args) throws InterruptedException
     {
-       	JFrame f = new JFrame("Paddle Game");
+       	JFrame f = new JFrame("Tetris");
 	
-       	final int BORDER_WIDTH = 16; //This number allow the game itself to be 512 x 512
-       	final int BORDER_HEIGHT = 39; //This number allow the game itself to be 512 x 512
        	f.setSize(BOUNDS_SIZE, BOUNDS_SIZE + 39); 
         
        	TetrisGame w = new TetrisGame();
