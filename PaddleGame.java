@@ -38,13 +38,14 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     
     boolean resetBall = false;
     boolean secondPlayer = false;
+    boolean pauseGame = true;
     
     public void movePaddleUp()
     {
     	boolean inBounds = checkLowerBounds(yPaddle);
     	if(inBounds == true)
     	{
-    		yPaddle -= CHANGE; 		
+    		yPaddle -= 2 * CHANGE; 		
     	}
      }
     
@@ -54,7 +55,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	
     	if(inBounds == true)
     	{
-    		yPaddle += CHANGE;
+    		yPaddle += 2 * CHANGE;
     	}
     }
     
@@ -63,7 +64,15 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	boolean inBounds = checkLowerBounds(yEnemyPaddle);
     	if(inBounds == true)
     	{
-    		yEnemyPaddle -= CHANGE/2;	//nerfing the ai paddle
+    		if(secondPlayer == true)
+    		{
+    			yEnemyPaddle -= 2 * CHANGE;
+    		}
+    		else
+    		{
+    			yEnemyPaddle -= CHANGE/2;	//nerfing the ai paddle
+    		}
+    		
     	}
     }
     
@@ -72,7 +81,14 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	boolean inBounds = checkUpperBounds(yEnemyPaddle);
     	if(inBounds == true)
     	{
-    		yEnemyPaddle += CHANGE/2;
+    		if(secondPlayer == true)
+    		{
+    			yEnemyPaddle += 2 * CHANGE;
+    		}
+    		else
+    		{
+    			yEnemyPaddle += CHANGE/2;	//nerfing the ai paddle
+    		}
     	}
     }
     
@@ -198,6 +214,8 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	xBall = BOUNDS_SIZE/2;
     	yBall = BOUNDS_SIZE/2;
     	resetBall = false;
+    	yPaddle = BOUNDS_SIZE/2 - OBJ_SIZE; // The y-position of the paddle
+ 	    yEnemyPaddle = BOUNDS_SIZE/2 - OBJ_SIZE; // The y-position of the enemy paddle
     	try        
     	{
     	    Thread.sleep(500);
@@ -255,6 +273,9 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
 	        G.drawString("Score " + winScore + " to win!", 214, 156);
 	        G.drawString("Score: " + String.valueOf(score), 230, 176);
 	        G.drawString("Enemy Score: " + String.valueOf(enemyScore), 210, 186);
+	        if(pauseGame == true) {
+	        	G.drawString("Press the p key to play", 192, 206);
+	        }
         }
         G.dispose();
     }
@@ -293,18 +314,25 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
 	
      public void play()
      {
-    	 moveBall(); 
-	    	
-		 if(Math.random() > .33) //some rng to make the game a bit more competitive
-		 {
-			 moveEnemyPaddle();
-		 }
-    	
-		 if(resetBall == true)
-		 {
-			 resetBall();
-		 }
-        
+    	 if(pauseGame == true)
+    	 {
+    	 
+    	 }
+    	 else
+    	 {
+    		 moveBall(); 
+ 	    	
+    		 if(Math.random() > .33) //some rng to make the game a bit more competitive
+    		 {
+    			 moveEnemyPaddle();
+    		 }
+        	
+    		 if(resetBall == true)
+    		 {
+    			 resetBall();
+    		 }
+    		 
+    	 }
 		 repaint();
 		 //Thread.sleep(20); // Affects movement speed
      }
@@ -314,22 +342,54 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
      {	
     	 if(e.getKeyCode() == 38) //'up' arrow key
     	 {
-            movePaddleUp();
+            if(pauseGame == false)
+			{
+            	movePaddleUp();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
     	 }
     	 else if(e.getKeyCode() == 40) //'down' arrow key
     	 {
-    		 movePaddleDown();
+    		if(pauseGame == false)
+ 			{
+    			 movePaddleDown();
+ 			}
+ 			else
+ 			{
+ 				// Wait for game to unpause
+ 			}
     	 }
     	 
     	 if(e.getKeyCode() == 87) //w key
     	 {
-    		 moveEnemyPaddleUp();
+    		if(pauseGame == false)
+ 			{
+    			 moveEnemyPaddleUp();
+ 			}
+ 			else
+ 			{
+ 				// Wait for game to unpause
+ 			}
     	 }
     	 else if(e.getKeyCode() == 83) //s key
     	 {
-    		 moveEnemyPaddleDown();
+    		if(pauseGame == false)
+ 			{
+    			 moveEnemyPaddleDown();
+ 			}
+ 			else
+ 			{
+ 				// Wait for game to unpause
+ 			}
     	 }
-
+    	 else if(e.getKeyCode() == 80) // p key
+         {
+         	pauseGame = !pauseGame;
+         }
+    	 
     	 if(e.getKeyCode() == 82) //r key
     	 {
     		 reset();
@@ -339,10 +399,6 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
      
      private void reset()
      {
-    	    xPaddle = 0; // The x-position of the paddle
-    	    yPaddle = 0; // The y-position of the paddle
-    	    xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
-    	    yEnemyPaddle = 0; // The y-position of the enemy paddle
     	    score = 0; // The player's score
     	    enemyScore = 0;
     	    resetBall();
