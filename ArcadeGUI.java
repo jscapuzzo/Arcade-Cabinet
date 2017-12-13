@@ -1,9 +1,7 @@
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ArcadeGUI 
 {
@@ -55,7 +53,6 @@ public class ArcadeGUI
 	 * Initialize the contents of the frame.
 	 * @throws InterruptedException 
 	 */
-	@SuppressWarnings("static-access")
 	private void initialize() throws InterruptedException 
 	{
 		layoutFrame = new BorderLayout(50, 50);
@@ -68,7 +65,7 @@ public class ArcadeGUI
 		desktop = new JDesktopPane();
 		desktop.setLayout(layoutDesk);
 		
-		gameFrame = new JInternalFrame("Main Menu");
+		gameFrame = new JInternalFrame("Main Menu - Click a game button on the side and hit submit to change games");
 		//desktop.add(gameFrame);
 		frame.getContentPane().add(gameFrame, layoutFrame.CENTER);
 		
@@ -97,24 +94,11 @@ public class ArcadeGUI
 	/**
 	 * Initialize the menu bar that allows users to see scores and instructions.
 	 */
-	@SuppressWarnings("static-access")
 	private void initMenuBar() 
 	{
 		JMenu fileMenu = new JMenu("Help");
 		 
-		JMenuItem help = new JMenuItem("Instructions");
-		help.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
-				System.out.println("b");
-				JFrame helpBox = new JFrame("How to Play");
-				helpBox.setSize(300, 300);
-				helpBox.setLocationRelativeTo(null);
-				helpBox.setResizable(false);
-				helpBox.setVisible(true);
-			}
-		});
+		JMenuItem help = new JMenuItem("Follow the instructions in each game to learn how play");
 		
 		fileMenu.add(help);
 		fileMenu.setVisible(true);
@@ -130,7 +114,6 @@ public class ArcadeGUI
 	 * Initialize the frame where games are played.
 	 * @throws InterruptedException
 	 */
-	@SuppressWarnings("static-access")
 	private void initGameFrame() throws InterruptedException
 	{
 		gameFrame.setFocusable(true);
@@ -147,7 +130,6 @@ public class ArcadeGUI
 	/**
 	 * Initialize the toolbars that allow users to switch themes and games
 	 */
-	@SuppressWarnings("static-access")
 	private void initToolBars()
 	{
 		
@@ -226,6 +208,13 @@ public class ArcadeGUI
 	{
 		if(button.getText().equals("Paddle Game"))
 		{
+			if(game1 != null)
+			{
+				gameFrame.removeKeyListener(game1);
+				gameFrame.remove(game1);
+				game1.stop();
+			}
+			
 			try 
 			{
 				game1 = new PaddleGame();
@@ -235,10 +224,11 @@ public class ArcadeGUI
 				e.printStackTrace();
 			}
 			
-			gameFrame.setTitle("Paddle Game");
+			gameFrame.setTitle("Paddle Game - Click inside a game to use keyboard input");
 			gameFrame.setFocusable(true);
 			gameFrame.requestFocus();
 			gameFrame.setFocusTraversalKeysEnabled(false);
+			
 			
 			if(game2 != null)
 			{
@@ -269,9 +259,16 @@ public class ArcadeGUI
 		}
 		else if(button.getText().equals("Worm Game"))
 		{
+			if(game2 != null)
+			{
+				gameFrame.removeKeyListener(game2);
+				gameFrame.remove(game2);
+				game2.stop();
+			}
+			
 			game2 = new WormGame();
 			gameFrame.setVisible(false);
-			gameFrame.setTitle("Worm Game");
+			gameFrame.setTitle("Worm Game - Click inside a game to use keyboard input");
 			gameFrame.setFocusable(true);
 			gameFrame.requestFocusInWindow();
 			gameFrame.setFocusTraversalKeysEnabled(false);
@@ -305,9 +302,16 @@ public class ArcadeGUI
 		}
 		else if(button.getText().equals("Space Game"))
 		{
+			if(game3 != null)
+			{
+				gameFrame.removeKeyListener(game3);
+				gameFrame.remove(game3);
+				game3.stop();
+			}
+			
 			game3 = new SpaceGame();
 			gameFrame.setVisible(false);
-			gameFrame.setTitle("Space Game");
+			gameFrame.setTitle("Space Game - Click inside a game to use keyboard input");
 			gameFrame.setFocusable(true);
 			gameFrame.requestFocusInWindow();
 			gameFrame.setFocusTraversalKeysEnabled(false);
@@ -341,9 +345,16 @@ public class ArcadeGUI
 		}
 		else if(button.getText().equals("Tetris Game"))
 		{
+			if(game4 != null)
+			{
+				gameFrame.removeKeyListener(game4);
+				gameFrame.remove(game4);
+				game4.stop();
+			}
+			
 			game4 = new TetrisGame();
 			gameFrame.setVisible(false);
-			gameFrame.setTitle("Tetris Game");
+			gameFrame.setTitle("Tetris Game - Click inside a game to use keyboard input");
 			gameFrame.setFocusable(true);
 			gameFrame.requestFocusInWindow();
 			gameFrame.setFocusTraversalKeysEnabled(false);
