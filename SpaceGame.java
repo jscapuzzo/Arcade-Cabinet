@@ -13,13 +13,13 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     static final int BOUNDS_SIZE = 512; //The size of the game boundaries
     static final int BULLET_SIZE = OBJ_SIZE/4; // The size of the bullet used by both ships
     static final int eBulletPos = OBJ_SIZE - BULLET_SIZE; // Used to align the enemy bullet correctly
-    static final int enemyFireDelayValue = 120; // The delay between firing bullets for the enemy
+    static final int enemyFireDelayValue = 180; // The delay between firing bullets for the enemy
     int enemySpeed = 32; // Determines how fast the enemy moves across the screen
     int enemyDirection = OBJ_SIZE; // Determines the x-direction the enemy ship moves
     static int xShip = BOUNDS_SIZE/2; // The x-position of the ship
     static int yShip = BOUNDS_SIZE - OBJ_SIZE; // The y-position of the ship
     int lives = 3; // The player's number of lives left
-    int enemyFireDelay = 120; // A counter that when it reaches zero, the enemy ships fires 
+    int enemyFireDelay = 240; // A counter that when it reaches zero, the enemy ships fires 
     int barrier1Hit = 2; // Value that determines damage value of the first barrier
     int barrier2Hit = 2; // Value that determines damage value of the second barrier
     int barrier3Hit = 2; // Value that determines damage value of the third barrier
@@ -29,6 +29,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     boolean pBulletMoving = false; // Ensures the player bullet only moves when fired
     boolean eBulletMoving = false; // Ensures the enemy bullet only moves when fired
     boolean resetEnemy = false; 
+    boolean pauseGame = true;
     SpaceObject player = new SpaceObject(1, 1, xShip, yShip);
     SpaceObject pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip); // Player bullet
     SpaceObject barrier1 = new SpaceObject(0, 0, 0 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
@@ -253,7 +254,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         	enemy.xPos = OBJ_SIZE;
         	enemy.yPos = 0;
         	resetEnemy = false;
-        	eBulletMoving = false;
+        	//eBulletMoving = false;
         }
         else {
         	enemy.xPos += enemyDirection/enemySpeed;
@@ -351,7 +352,10 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 	        G.drawString("Lives: " + String.valueOf(lives), 214, 196);
 	        G.drawString("Enemies left: " + String.valueOf(enemySpeed - 3), 214 - OBJ_SIZE/2, 206);
 	        G.drawString("Press Left & Right Arrows to Move", 214 - 2 * OBJ_SIZE, 166);
-	        G.drawString("Press Up Arrow to Fire", 214 - OBJ_SIZE, 176);
+	        G.drawString("Press Up Arrow or Space to Fire", 214 - 2 * OBJ_SIZE, 176);
+	        if(pauseGame == true) {
+	        	G.drawString("Press the p key to play", 214 - OBJ_SIZE, 226);
+	        }
 	        
         }
         else
@@ -392,30 +396,73 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     
     public void play()
     {
-    	checkEnemy();
-    	checkPlayer();
-    	moveEnemy();
-    	moveBullet();
-    	enemyShoot();
-    	checkBarrier();
-        repaint();
+    	if(pauseGame == true) {
+    		
+    	}
+    	else {
+	    	checkEnemy();
+	    	checkPlayer();
+	    	moveEnemy();
+	    	moveBullet();
+	    	enemyShoot();
+	    	checkBarrier();
+    	}
+    	repaint();
     }
     
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
-		if(e.getKeyCode() == 37)
+		if(e.getKeyCode() == 37) // Left arrow key
         {
-        	moveShipLeft();
+			if(pauseGame == false)
+			{
+				moveShipLeft();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
         }
-        else if(e.getKeyCode() == 38)
+        else if(e.getKeyCode() == 32) // Space key
         {
-        	fireBullet();
-        	pBulletMoving = true;
+        	if(pauseGame == false)
+			{
+        		fireBullet();
+            	pBulletMoving = true;
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
+        	
         }
-        else if(e.getKeyCode() == 39)
+        else if(e.getKeyCode() == 38) // Up arrow key
         {
-        	moveShipRight();
+        	if(pauseGame == false)
+			{
+        		fireBullet();
+            	pBulletMoving = true;
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
+        }
+        else if(e.getKeyCode() == 39) // Right arrow key
+        {
+        	if(pauseGame == false)
+			{
+        		moveShipRight();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
+        }
+        else if(e.getKeyCode() == 80) // p key
+        {
+        	pauseGame = !pauseGame;
         }
     }
 	
