@@ -14,11 +14,13 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
     static final int winScore = 100;
     static int xWorm = 0; // The x-position of the worm
     static int yWorm = 0; // The y-position of the worm
+    int time = 6000;
     int xFood = 64; // The x-position of the worm food
     int yFood = 64; // The y-position of the worm food
     int score = 0; // The player's score
     private Timer timer;
     boolean canMove = true; // Ensure's an object does not move more than once per cycle
+    boolean pauseGame = true;
     
     public void moveWormRight()
     {
@@ -108,7 +110,7 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
         G.setColor(Color.WHITE); // Background color
         G.fillRect(0, 0, 512, 512); // Places background over JPanel default none
         
-        if(score < winScore)
+        if(time / 60 > 0)
         {
 	        G.setColor(Color.BLACK); // Worm color
 	        G.fillRect(xWorm, yWorm, OBJ_SIZE, OBJ_SIZE); // Creates worm on screen
@@ -120,17 +122,31 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
 	        G.drawString("Use the arrow keys to move!", 166, 156);
 	        G.drawString("Get " + winScore + " to win!", 200, 166);
 	        G.drawString("Score: " + String.valueOf(score), 214, 186);
+	        G.drawString("Time left: " + String.valueOf(time / 60), 200, 196);
+	        if(pauseGame == true) {
+	        	G.setColor(Color.RED);
+	        	G.drawString("Press the p key to play", 182, 216);
+	        }
         }
         else
         {
         	G.setColor(Color.BLACK); // The on-screen text color
-	        G.drawString("YOU WIN!", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+	        G.drawString("GAME OVER", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+	        G.drawString("Final Score = " + String.valueOf(score), BOUNDS_SIZE/2 - OBJ_SIZE - 10, BOUNDS_SIZE/2 - OBJ_SIZE + 10);
         }
         G.dispose();
     }
 
     public WormGame()
     {
+    	try        
+    	{
+    	    Thread.sleep(500);
+    	} 
+    	catch(InterruptedException ex) 
+    	{
+    	    Thread.currentThread().interrupt();
+    	}
     	//sets the gui to read keystrokes and make it the focus
     	addKeyListener(this);
         setFocusable(true);
@@ -157,8 +173,16 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
     
     public void play()
     {
-    	checkFood();
-        repaint();
+    	if(pauseGame == true)
+    	{
+    		
+    	}
+    	else
+    	{
+    		checkFood();
+    		time--;
+    	}
+    	repaint();
     }
     
 	@Override
@@ -166,19 +190,51 @@ public class WormGame extends JPanel implements KeyListener, ActionListener
 	{
 		if(e.getKeyCode() == 37)
         {
-        	moveWormLeft();
+			if(pauseGame == false)
+			{
+				moveWormLeft();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
         }
         else if(e.getKeyCode() == 38)
         {
-        	moveWormUp();
+        	if(pauseGame == false)
+			{
+            	moveWormUp();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
         }
         else if(e.getKeyCode() == 39)
         {
-        	moveWormRight();
+        	if(pauseGame == false)
+			{
+            	moveWormRight();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
         }
         else if(e.getKeyCode() == 40)
         {
-        	moveWormDown();
+        	if(pauseGame == false)
+			{
+            	moveWormDown();
+			}
+			else
+			{
+				// Wait for game to unpause
+			}
+        }
+        else if(e.getKeyCode() == 80) // p key
+        {
+        	pauseGame = !pauseGame;
         }
     }
 	
