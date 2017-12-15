@@ -129,10 +129,10 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         //display controls
         //update scores and lines cleared
         G.setColor(Color.BLACK);
-        G.drawString("Score: " + String.valueOf(score), 440, 10);
-        G.drawString("Lines Cleared: " + String.valueOf(linesCleared), 395, 25);
-        G.drawString("Use the arrow keys to move left, right, and down", 227, 40);
-        G.drawString("Use the UP arrow key to rotate", 320, 55);
+        G.drawString("Score: " + String.valueOf(score), 405, 10);
+        G.drawString("Lines Cleared: " + String.valueOf(linesCleared), 405, 25);
+        G.drawString("Use the arrow keys to move", 5, 10);
+        G.drawString("Use the UP arrow key to rotate", 5, 25);
         
         if(pauseGame == true) 
         {
