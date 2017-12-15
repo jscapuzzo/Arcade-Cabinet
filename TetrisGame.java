@@ -106,7 +106,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         	//paint existing block first and don't go out of bounds
             if(i < bCoords.length && block != null && block.getBlockType() != "nullBlock")
             {
-            	int x = xBlock + bCoords[i][0];
+            	int x = xBlock - bCoords[i][0];
                 int y = yBlock - bCoords[i][1];
                 
                 G.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);  	
@@ -155,7 +155,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	for(int i = 0; i < bCoords.length; i++)
     	{
     		//test new block x-position. y values don't change
-    		int x = xPos + bCoords[i][0]; 
+    		int x = xPos - bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
     		//check for bounds and collisions
@@ -183,7 +183,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	for(int i = 0; i < bCoords.length; i++)
     	{
     		//test new block x-position. y values don't change
-    		int x = xPos + bCoords[i][0]; 
+    		int x = xPos - bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
     		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
@@ -210,7 +210,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	for(int i = 0; i < bCoords.length; i++)
     	{
     		//test new block y-position. x values don't change
-    		int x = xBlock + bCoords[i][0];
+    		int x = xBlock - bCoords[i][0];
     		int y = yPos - bCoords[i][1];
     		
     		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
@@ -241,7 +241,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	//check if tester block is in bounds
     	for(int i = 0; i < bCoords.length; i++)
     	{
-    		int x = xBlock + bCoords[i][0];
+    		int x = xBlock - bCoords[i][0];
     		int y = yBlock - bCoords[i][1];
     		
     		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
@@ -264,7 +264,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	//lock the pieces of the block in at their respective coordinates
     	for(int i = 0; i < bCoords.length; i++)
     	{
-    		int x = xBlock + bCoords[i][0];
+    		int x = xBlock - bCoords[i][0];
             int y = yBlock - bCoords[i][1];
           
             //check for game over condition
