@@ -17,35 +17,30 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     private TetrisBlock block;		//new block in the matrix
     private TetrisBlock[][] matrix;	//matrix of blocks
     
-    private int linesCleared = 0;		//number of cleared lines
-    private int score = 0; 		//The player's score
-    boolean gameOver = false;
+    private int linesCleared = 0;	//number of cleared lines
+    private int score = 0; 			//The player's score
+    private boolean gameOver = false;	//game over state
+    private boolean pauseGame = true;	//game pause state
     
-    private int xBlock = 0;
-    private int yBlock = 0;
+    private int xBlock = 0;		//x-position of our block (in the matrix)
+    private int yBlock = 0;		//y-position of our block 
     
-    private JLabel scoreLabel;
-    
-    
-
     /**
      * Create a TetrisGame object.
      * Purely serves to do interaction stuff. Most of the hardwork is done in its methods.
      */
     public TetrisGame()
     {
-    	matrix = new TetrisBlock[HEIGHT][WIDTH];
+    	matrix = new TetrisBlock[WIDTH][HEIGHT];
         
-        //initialize the board
+        //initialize game states
         resetMatrix();
-        scoreLabel = new JLabel();
         newBlock();
         
     	//sets the gui to read keystrokes and make it the focus
     	addKeyListener(this);
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
-        add(scoreLabel);
         
         //the following was grabbed off Oracle's swing tutorial online
         //essentially it just automatically starts the game with a delay and sets the speed of the game
@@ -61,20 +56,21 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     {
     	block = TetrisBlock.createRandomBlock();
         
-        xBlock = (int) (WIDTH / 2);
-        yBlock = HEIGHT - 1 + block.getMinYCoord();
+        xBlock = (int) (WIDTH / 2);		//middle of matrix
+        yBlock = HEIGHT - 1 + block.getMinYCoord();		//lowest y-value must be factored for game over or tall column situations
     }
     
     /**
+     * Standard 2D array initialization procedure
      * Initialize matrix with null blocks
      */
     private void resetMatrix()
     {
-    	for (int i = 0; i < HEIGHT; i++)
+    	for(int i = 0; i < WIDTH; i++)
         {
-        	for(int j = 0; j < WIDTH; j++)
+        	for(int j = 0; j < HEIGHT; j++)
         	{
-           		matrix[j][i] = TetrisBlock.createNullBlock();
+           		matrix[i][j] = TetrisBlock.createNullBlock();
         	}
         }
     }
@@ -89,54 +85,60 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
         
         Graphics2D G = (Graphics2D) g;
         
-        if(gameOver)
+        if(gameOver == true)
         {
-        	G.setColor(Color.BLACK); // The on-screen text color
-	        G.drawString("GAME OVER", BOUNDS_SIZE/2 - OBJ_SIZE, BOUNDS_SIZE/2 - OBJ_SIZE);
+        	G.setColor(Color.BLACK); //The on-screen text color
+	        G.drawString("GAME OVER", (BOUNDS_SIZE/2) - OBJ_SIZE, (BOUNDS_SIZE/2) - OBJ_SIZE);
+	        
 	        return;
         }
         
-        G.setPaint(Color.WHITE); //set background to be white
+        G.setPaint(Color.WHITE);	 //set background to be white
         G.fillRect(0, 0, 512, 512);
         
-        //G.setColor(Color.GRAY); //pieces paint to gray
-        
-        int[][] bCoords = block.getCoordinateArr(); //current block coordinates
+        int[][] bCoords = block.getCoordinateArr(); //current block x-y coordinates
         
         //loops to paint blocks
-        for(int i = 0; i < HEIGHT; i++) 
+        for(int i = 0; i < WIDTH; i++) 
         {
         	G.setColor(block.getBlockColor());
+        	
         	//paint existing block first and don't go out of bounds
             if(i < bCoords.length && block != null && block.getBlockType() != "nullBlock")
             {
             	int x = xBlock + bCoords[i][0];
                 int y = yBlock - bCoords[i][1];
                 
-                G.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
-            	
+                G.fillRect(x * OBJ_SIZE, (HEIGHT - 1 - y) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);  	
             }
             
             //paint the "locked in" blocks next
-            for(int j = 0; j < WIDTH; j++) 
+            for(int j = 0; j < HEIGHT; j++) 
             {
-                TetrisBlock t = getBlock(j, i);
+                TetrisBlock t = getBlock(i, j);
                 G.setColor(t.getBlockColor());
                 
                 if(t != null && t.getBlockType() != "nullBlock")
                 {
-                	//draw the block
-                	
-                    G.fillRect(j * OBJ_SIZE, (HEIGHT - 1 - i) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
+                	//draw the block            	
+                    G.fillRect(i * OBJ_SIZE, (HEIGHT - 1 - j) * OBJ_SIZE, OBJ_SIZE, OBJ_SIZE);
                 }
             }
         }
         
+        //display controls
+        //update scores and lines cleared
         G.setColor(Color.BLACK);
         G.drawString("Score: " + String.valueOf(score), 440, 10);
         G.drawString("Lines Cleared: " + String.valueOf(linesCleared), 395, 25);
         G.drawString("Use the arrow keys to move left, right, and down", 227, 40);
         G.drawString("Use the UP arrow key to rotate", 320, 55);
+        
+        if(pauseGame == true) 
+        {
+        	G.drawString("Press the p key to play", 192, 206);
+        }
+        
         G.dispose();
     }
     
@@ -149,13 +151,15 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	
     	int[][] bCoords = block.getCoordinateArr();
     	
+    	//must test all x and y values due to rotations and variance in block shape.
     	for(int i = 0; i < bCoords.length; i++)
     	{
+    		//test new block x-position. y values don't change
     		int x = xPos + bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
     		//check for bounds and collisions
-            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
+            if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
             {
             	//out of bounds.  kill method
             	return;
@@ -175,12 +179,14 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	
     	int[][] bCoords = block.getCoordinateArr();
     	
+    	//must test all x and y values due to rotations and variance in block shape.
     	for(int i = 0; i < bCoords.length; i++)
     	{
+    		//test new block x-position. y values don't change
     		int x = xPos + bCoords[i][0]; 
     		int y = yBlock - bCoords[i][1];
     		
-            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
+    		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
             {
             	//out of bounds. kill method
             	return;
@@ -200,12 +206,14 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     	
     	int[][] bCoords = block.getCoordinateArr();
     	
+    	//must test all x and y values due to rotations and variance in block shape.
     	for(int i = 0; i < bCoords.length; i++)
     	{
+    		//test new block y-position. x values don't change
     		int x = xBlock + bCoords[i][0];
     		int y = yPos - bCoords[i][1];
     		
-            if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
+    		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
             {
             	//out of bounds, lock piece in and end method
             	lockPieceIn();
@@ -236,7 +244,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     		int x = xBlock + bCoords[i][0];
     		int y = yBlock - bCoords[i][1];
     		
-    		if(!checkBounds(x, WIDTH) || !checkBounds(y, HEIGHT) || checkCollision(x, y))
+    		if(checkBounds(x, WIDTH) == false || checkBounds(y, HEIGHT) == false || checkCollision(x, y) == true)
     		{
     			return;
     		}
@@ -253,21 +261,23 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
     {
     	int[][] bCoords = block.getCoordinateArr();
     	
+    	//lock the pieces of the block in at their respective coordinates
     	for(int i = 0; i < bCoords.length; i++)
     	{
     		int x = xBlock + bCoords[i][0];
             int y = yBlock - bCoords[i][1];
           
-            //check for game condition
+            //check for game over condition
             int check = yBlock - block.getMinYCoord();
-        	if(!checkBounds(check, HEIGHT - 1))
+        	if(checkBounds(check, HEIGHT - 1) == false)
             {
         		gameOver = true;
             }
             
-            matrix[y][x] = block;
+            matrix[x][y] = block;
         }
         
+    	score++;
     	repaint();
     }
     
@@ -339,7 +349,11 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
      */
     public void play()
     {
-    	if(gameOver)
+   	 	if(pauseGame == true)
+   	 	{
+   	 
+   	 	}
+   	 	else if(gameOver == true)
     	{
     		timer.stop();
     		return;
@@ -357,7 +371,15 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
-		if(e.getKeyCode() == 37)	//left arrow key
+		if(e.getKeyCode() == 80) // p key
+	    {
+	       	pauseGame = !pauseGame;
+	    }
+		else if(pauseGame == true)
+		{
+			
+		}
+		else if(e.getKeyCode() == 37)	//left arrow key
         {
 			moveLeft();
 		}
@@ -392,6 +414,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	
 	/**
 	 * Check if the integer is within bounds
+	 * Combination of our checkLowerBounds and checkUpperBounds methods from previous games
 	 * @param position
 	 * @param bound
 	 * @return
@@ -419,7 +442,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	private boolean checkCollision(int x, int y)
 	{
 		//check for collision
-		if (getBlock(x, y) != null && getBlock(x, y).getBlockType() != "nullBlock")
+		if(getBlock(x, y) != null && getBlock(x, y).getBlockType() != "nullBlock")
 		{
 			//we have a collision
 			return true;
@@ -436,7 +459,7 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	 */
 	private TetrisBlock getBlock(int x, int y) 
 	{ 
-		return matrix[y][x];
+		return matrix[x][y];
 	}
 	
 	/**
@@ -446,50 +469,30 @@ public class TetrisGame extends JPanel implements KeyListener, ActionListener
 	 */
 	private TetrisBlock[][] removeLine(int flag)
     {
-        TetrisBlock[][] copy= new TetrisBlock[HEIGHT][WIDTH];
+        TetrisBlock[][] copy= new TetrisBlock[WIDTH][HEIGHT];
         
-        int count = 0;
+        int count = 0;	//denotes which rows will get original values
 
-        if(flag == HEIGHT - 1)
-        {
-            for(int i = 0; i < HEIGHT - 1; i++)
-            { 
-                for(int j = 0; j < WIDTH; j++)
-                {    
-                    if(i == flag)
-                    {
-                    	
-                    }	  
-                    else
-                    {
-                    	copy[i][j] = matrix[i][j];
-                    }
-                }
+        //traverse entire array.
+        for(int i = 0; i < HEIGHT; i++)
+        { 
+           for(int j =  0; j < WIDTH; j++)
+           {   
+        	   //row to be removed
+        	   if(i == flag)
+               {
+                   	i++;
+               }
                
-                count++;
-            }
-        }
-        else
-        {
-            for(int i = 0; i < HEIGHT; i++)
-            { 
-                for(int j =  0; j < WIDTH; j++)
-                {    
-                    if(i == flag)
-                    {
-                       	i++;
-                    }
-                    
-                    if(i + 1 == HEIGHT)
-                    {
-                    	copy[i][j] = TetrisBlock.createNullBlock();
-                    }
+               if(i + 1 == HEIGHT)
+               {
+                    copy[j][i] = TetrisBlock.createNullBlock();
+               }
                              
-                    copy[count][j] = matrix[i][j];
-                }
+               copy[j][count] = matrix[j][i];
+           }
                 
-                count++;
-            }  
+           count++;
         }
         
         return copy;
