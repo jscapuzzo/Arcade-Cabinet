@@ -1,3 +1,8 @@
+/**
+ * Makes the spaceship for use in SpaceGame object
+ * @author J. Capuzzo (lead) and R. King (partner)
+ *
+ */
 public class SpaceObject {
 	// Value indicating relationship to player. 0 = neutral, 1 = ally, 2 = enemy
 	private int allyType;
