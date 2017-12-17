@@ -5,20 +5,20 @@ import java.awt.Color;
  * Coordinates are imagined in a x-y or R2 plane. This allows for convenient rotation. 
  * Essentially each block is in its own R2 plane, and the R2 planes intersecting is how they will stack. 
  * 
- * @author Ryan
+ * @author Ryan King (lead) and Jerry Capuzzo (partner)
  */
 
 public class TetrisBlock 
 {
-	private int[][] coordinates;
-	private String blockType; 
+	private int[][] coordinates;	//block's x-y coordinates
+	private String blockType; 	
 	private Color color;
 	
     /**
      * Parameterized constructor. Makes a Tetris block from input.
-     * @param coordinates
-     * @param type
-     * @param paint
+     * @param coordinates Block coordinates
+     * @param type Block type (i.e. Square block or T-Block)
+     * @param paint Paint color to fill the block
      */
     public TetrisBlock(int[][] coordinates, String type, Color paint)
     {
@@ -26,18 +26,10 @@ public class TetrisBlock
         blockType = type;
         color = paint;
     }
-    
-    /**
-     * Default constructor. Creates a null block.
-     */
-    public TetrisBlock()
-    {
-        createNullBlock();
-    }
 
     /**
      * Copy constructor for testing rotations
-     * @param block
+     * @param block TetrisBlock object for deep copy
      */
     public TetrisBlock(final TetrisBlock block)
     {
@@ -123,20 +115,19 @@ public class TetrisBlock
      */
     public void rotateLeft() 
     {
-        if(blockType == "squareBlock") 
+        if(blockType == "squareBlock") //square block doesn't need to be rotated
         {
             return;
         }
-        else
+        else	//do some linear algebra
         {	        
-        	//transpose, then reverse each row.
         	transpose();
         	reverseRows();
         }
     }
     
     /*
-     * Getters can be public, and will assist us in boundary checking
+     * Getters assist in boundary checking
      */
     
     public int[][] getCoordinateArr()
@@ -144,6 +135,10 @@ public class TetrisBlock
     	return coordinates;
     }
     
+    /**
+     * Get the current block's minimum y coordinate
+     * @return
+     */
     public int getMinYCoord() 
     {
     	int minValue = coordinates[0][1];
@@ -162,33 +157,16 @@ public class TetrisBlock
     
     /*
      * The following methods create instances of special blocks used in Tetris.
-     * Only the null block is public since it can be used to initialize TetrisBlock coordinatesays
      */
-    
-    public static TetrisBlock createNullBlock()
-	{
-		int[][] coordinates = new int[][] 
-										{ 
-											{0, 0}, 
-											{0, 0}, 
-											{0, 0}, 
-											{0, 0} 
-										};
-										
-		String name = "nullBlock";
-		Color color = Color.WHITE;
-		
-		return new TetrisBlock(coordinates, name, color);
-	}
 	
 	private static TetrisBlock createZBlock()
 	{
 		int[][] coordinates = new int[][] 
 										{ 
-											{0, 1},
-											{1, 1},
+											{0, 0},
 											{1, 0},
-											{2, 0}
+											{1, 1},
+											{2, 1}
 								};
 		
 		String name = "zBlock";
@@ -201,10 +179,10 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{ 
+											{0, 0},
 											{0, 1},
-											{0, 2},
-											{1, 0},
-											{1, 1}
+											{1, 1},
+											{1, 2}
 										};
 		
 		String name = "sBlock";
@@ -235,8 +213,8 @@ public class TetrisBlock
 										{ 
 											{0, 0},
 											{1, 0},
-											{1, 1},
-											{2, 0}
+											{2, 0},
+											{1, 1}
 										};
 		String name = "tBlock";
 		Color color = Color.GREEN.darker();
@@ -249,9 +227,9 @@ public class TetrisBlock
 		int[][] coordinates = new int[][] 
 										{
 											{0, 0}, 
-											{1, 0}, 
 											{0, 1}, 
-											{1, 1} 
+											{1, 1}, 
+											{1, 0} 
 										};
 										
 		String name = "squareBlock";
@@ -264,10 +242,10 @@ public class TetrisBlock
 	{
 		int[][] coordinates = new int[][] 
 										{
+											{1, 0},
 											{0, 0},
 											{0, 1},
-											{0, 2},
-											{1, 0}
+											{0, 2}
 										};
 										
 		String name = "lBlock";
@@ -292,11 +270,15 @@ public class TetrisBlock
 		return new TetrisBlock(coordinates, name, color);
 	}
 	
+	/*
+	 * The following are auxiliary methods for block rotation
+	 */
+	
 	private void transpose() 
 	{
-		for (int i = 0; i < 2; i++) //row length
+		for (int i = 0; i < 2; i++)
 		{
-			for (int j = 0; j < 2; j++) //column length
+			for (int j = 0; j < 2; j++)
 			{
 				int temp = coordinates[i][j];
 				coordinates[i][j] = coordinates[j][i];
@@ -305,26 +287,14 @@ public class TetrisBlock
 		}
     }
 	
-	/*
-	 * The following methods are used for matrix operations.
-	 * These can probably be reused in another project at some point.
-	 */
-	
 	private void reverseRows()
-	{
-		for(int row = 0; row < coordinates.length; row++)
+	{	
+		for(int i = 0; i < 4; i++) 
 		{
-			for(int col = 0; col < coordinates[row].length / 2; col++) 
-		    {
-		        int temp = coordinates[row][col] * -1;
-		        coordinates[row][col] = coordinates[row][coordinates[row].length - col - 1];
-		        coordinates[row][coordinates[row].length - col - 1] = temp;
-		    }
-		}	
-	}
-	
-	public static void main(String[] args)
-	{
-		
-	}
+	        int temp = coordinates[i][0] * -1;	//multiplying by -1 gives a full swap of positions
+	        coordinates[i][0] = coordinates[i][1];
+	        coordinates[i][1] = temp;
+		}
+
+	}	
 }
