@@ -7,40 +7,86 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 /**
- * 
- * @author J. Capuzzo and R. King
+ * Clone of the classic arcade game Pong
+ * @author J. Capuzzo (lead) and R. King (partner)
  *
  */
 @SuppressWarnings("serial")
 public class PaddleGame extends JPanel implements KeyListener, ActionListener
 {
-    static final int OBJ_SIZE = 32; // The size of the worm and worm ford
-    static final int PADDLE_HEIGHT = OBJ_SIZE * 2;
-    static final int BOUNDS_SIZE = 512; //The size of the game boundaries
-    static final int WIDTH = BOUNDS_SIZE + 16;
-    static final int HEIGHT = BOUNDS_SIZE + 39;
+	public static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    public static final int WIDTH = BOUNDS_SIZE + 16;
+    public static final int HEIGHT = BOUNDS_SIZE + 39;
+    public static final int OBJ_SIZE = 32; 	// The size of the worm and worm ford
+    public static final int PADDLE_HEIGHT = OBJ_SIZE * 2;
+        
+    private int xPaddle; // The x-position of the paddle
+    private int yPaddle; // The y-position of the paddle
+    private int xEnemyPaddle; // The x-position of the enemy paddle
+    private int yEnemyPaddle; // The y-position of the enemy paddle
     
-    private static int xPaddle = 0; // The x-position of the paddle
-    private static int yPaddle = 0; // The y-position of the paddle
-    private static int xEnemyPaddle = WIDTH - OBJ_SIZE; // The x-position of the enemy paddle
-    private static int yEnemyPaddle = 0; // The y-position of the enemy paddle
+    private int xBall; // The x-position of the ball
+    private int yBall; // The y-position of the ball
+    private int xBallDirection;    // velocity of ball
+    private int yBallDirection;
     
-    private int xBall = BOUNDS_SIZE/2; // The x-position of the ball
-    private int yBall = BOUNDS_SIZE/2; // The y-position of the ball
-    private int xBallDirection = 3;         // velocity of ball
-    private int yBallDirection = 6;
-    private final int CHANGE = 16;
+    public static final int CHANGE = 16;
     private Timer timer;
     
-    int score = 0; // The player's score
-    int enemyScore = 0;
-    final int winScore = 25;
+    private int score; // The player's score
+    private int enemyScore;
     
-    boolean resetBall = false;
-    boolean secondPlayer = false;
-    boolean pauseGame = true;
+    public static final int winScore = 25;
     
-    public void movePaddleUp()
+    private boolean resetBall;
+    
+    private static boolean secondPlayer = false;
+    private static boolean pauseGame = true;
+    
+    /**
+     * Constructor for PaddleGame Object. 
+     * Resets all instance variables and adds interactive components.
+     * @throws InterruptedException
+     */
+    public PaddleGame() throws InterruptedException
+    {
+    	newGame();
+    	reset();
+    	
+    	//sets the GUI to read keystrokes and make it the focus
+    	addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        
+        //the following was grabbed off Oracle's swing tutorial online
+        //essentially it just automatically starts the game with a delay and sets the speed of the game
+        timer = new Timer(15, this);
+        timer.setInitialDelay(1500);
+        timer.start();
+    }
+    
+    /**
+     * Reset the game state
+     */
+    private void newGame()
+    {
+        xPaddle = 0;
+        yPaddle = 0;
+        xEnemyPaddle = WIDTH - OBJ_SIZE;
+        yEnemyPaddle = 0;
+        
+        xBall = BOUNDS_SIZE/2;
+        yBall = BOUNDS_SIZE/2;
+        xBallDirection = 3;
+        yBallDirection = 6;
+        
+        score = 0;
+        enemyScore = 0;
+        
+        resetBall = false;
+    }
+    
+    private void movePaddleUp()
     {
     	boolean inBounds = checkLowerBounds(yPaddle);
     	if(inBounds == true)
@@ -49,7 +95,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
      }
     
-    public void movePaddleDown()
+    private void movePaddleDown()
     {
     	boolean inBounds = checkUpperBounds(yPaddle);
     	
@@ -59,7 +105,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveEnemyPaddleUp()
+    private void moveEnemyPaddleUp()
     {
     	boolean inBounds = checkLowerBounds(yEnemyPaddle);
     	if(inBounds == true)
@@ -76,7 +122,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveEnemyPaddleDown()
+    private void moveEnemyPaddleDown()
     {
     	boolean inBounds = checkUpperBounds(yEnemyPaddle);
     	if(inBounds == true)
@@ -92,7 +138,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public boolean checkLowerBounds(int position)
+    private static boolean checkLowerBounds(int position)
     {
     	if(position <= 0)
     	{
@@ -104,7 +150,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public boolean checkUpperBounds(int position)
+    private static boolean checkUpperBounds(int position)
     {
     	if(position >= BOUNDS_SIZE - PADDLE_HEIGHT)
     	{
@@ -116,7 +162,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public boolean checkBallUpperBounds(int position)
+    private static boolean checkBallUpperBounds(int position)
     {
     	//int p = position;
     	if(position >= BOUNDS_SIZE - OBJ_SIZE)
@@ -129,7 +175,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveEnemyPaddle()
+    private void moveEnemyPaddle()
     {
     	if(secondPlayer == true)
     	{
@@ -193,12 +239,11 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	yBall += yBallDirection;
     }
 	
-    //method currently not being used, but may have a purpose
     public void setYBall()
     {
     	int randNum = (int) (Math.random() * 101) / 2;
     	
-	//coin-flip the direction
+    	//coin-flip the direction
     	if(randNum < 50)
         {
              yBallDirection = -OBJ_SIZE;
@@ -216,7 +261,8 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	resetBall = false;
     	yPaddle = BOUNDS_SIZE/2 - OBJ_SIZE; // The y-position of the paddle
  	    yEnemyPaddle = BOUNDS_SIZE/2 - OBJ_SIZE; // The y-position of the enemy paddle
-    	try        
+    	
+ 	    try  	//delay ball moving
     	{
     	    Thread.sleep(500);
     	} 
@@ -247,7 +293,7 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
         }
         else
         {
-        	if(resetBall) //beginning of game
+        	if(resetBall == true) //beginning of game
 	        {
 	        	yPaddle = HEIGHT / 2;
 	        	yEnemyPaddle = yPaddle;
@@ -273,30 +319,22 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
 	        G.drawString("Score " + winScore + " to win!", 214, 156);
 	        G.drawString("Score: " + String.valueOf(score), 230, 176);
 	        G.drawString("Enemy Score: " + String.valueOf(enemyScore), 210, 186);
+	        
 	        if(pauseGame == true) {
-	        	G.drawString("Press the p key to play", 192, 206);
+	        	G.setColor(Color.RED);
+	        	G.setFont(new Font("Arial", Font.BOLD, 20));
+	        	G.drawString("Press the p key to play", 160, 206);
 	        }
         }
+        
         G.dispose();
     }
     
-    //constructor does some interaction stuff
-    public PaddleGame() throws InterruptedException
-    {
-    	reset();
-    	//sets the gui to read keystrokes and make it the focus
-    	addKeyListener(this);
-        setFocusable(true);
-        setFocusTraversalKeysEnabled(false);
-        
-        //the following was grabbed off Oracle's swing tutorial online
-        //essentially it just automatically starts the game with a delay and sets the speed of the game
-        timer = new Timer(15, this);
-        timer.setInitialDelay(1500);
-        timer.start();
-    }
-    
-    //may or may not need exception here, but i do not have ide open. 
+    /**
+     * Main method used for testing.
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException
     {
        	JFrame f = new JFrame("Paddle Game");
@@ -312,29 +350,31 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
        	f.setVisible(true);
      }
 	
-     public void play()
-     {
-    	 if(pauseGame == true)
-    	 {
+    /**
+     * Play the game
+     */
+    public void play()
+    {
+    	if(pauseGame == true)
+    	{
     	 
-    	 }
-    	 else
-    	 {
-    		 moveBall(); 
+    	}
+    	else
+    	{
+    		moveBall(); 
  	    	
-    		 if(Math.random() > .33) //some rng to make the game a bit more competitive
-    		 {
-    			 moveEnemyPaddle();
-    		 }
+    		if(Math.random() > .33) //some rng to make the game a bit more competitive
+    		{
+    			moveEnemyPaddle();
+    		}
         	
-    		 if(resetBall == true)
-    		 {
-    			 resetBall();
-    		 }
+    		if(resetBall == true)
+    		{
+    			resetBall();
+    		}
     		 
-    	 }
-		 repaint();
-		 //Thread.sleep(20); // Affects movement speed
+    	}
+    	repaint();
      }
 
      @Override
@@ -397,28 +437,33 @@ public class PaddleGame extends JPanel implements KeyListener, ActionListener
     	 }
      }
      
+     /**
+      * Reset ball and scores
+      */
      private void reset()
      {
-    	    score = 0; // The player's score
-    	    enemyScore = 0;
-    	    resetBall();
+    	 score = 0;
+    	 enemyScore = 0;
+    	 resetBall();
      }
      
-     //following methods do nothing
-     //need to be here for interface implementation 
+     /* Following methods do nothing but make the KeyListener interface happy */
      @Override
      public void keyReleased(KeyEvent e) {}
 	
      @Override
      public void keyTyped(KeyEvent e) {}
+     /* End of useless methods */
      
-     //allows game to be played in separate GUI
      @Override
      public void actionPerformed(ActionEvent e) 
      {
     	 play();
      }
      
+     /**
+      * Stop the game
+      */
      public void stop()
      {
     	 timer.stop();

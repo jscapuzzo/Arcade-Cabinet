@@ -6,40 +6,100 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
 
+/**
+ * Clone of classic arcade game Space Invaders with our unique take on it.
+ * @author J. Capuzzo (lead) and R. King (partner)
+ */
 @SuppressWarnings("serial")
 public class SpaceGame extends JPanel implements KeyListener, ActionListener
 {
-	static final int OBJ_SIZE = 32; // The size of the ships
-    static final int BOUNDS_SIZE = 512; //The size of the game boundaries
-    static final int BULLET_SIZE = OBJ_SIZE/4; // The size of the bullet used by both ships
-    static final int eBulletPos = OBJ_SIZE - BULLET_SIZE; // Used to align the enemy bullet correctly
-    static final int enemyFireDelayValue = 180; // The delay between firing bullets for the enemy
-    int enemySpeed = 32; // Determines how fast the enemy moves across the screen
-    int enemyDirection = OBJ_SIZE; // Determines the x-direction the enemy ship moves
-    static int xShip = BOUNDS_SIZE/2; // The x-position of the ship
-    static int yShip = BOUNDS_SIZE - OBJ_SIZE; // The y-position of the ship
-    int lives = 3; // The player's number of lives left
-    int enemyFireDelay = 240; // A counter that when it reaches zero, the enemy ships fires 
-    int barrier1Hit = 2; // Value that determines damage value of the first barrier
-    int barrier2Hit = 2; // Value that determines damage value of the second barrier
-    int barrier3Hit = 2; // Value that determines damage value of the third barrier
-    int barrier4Hit = 2; // Value that determines damage value of the fourth barrier
+	public static final int OBJ_SIZE = 32; // The size of the ships
+    public static final int BOUNDS_SIZE = 512; //The size of the game boundaries
+    public static final int BULLET_SIZE = OBJ_SIZE/4; // The size of the bullet used by both ships
+    private static final int eBulletPos = OBJ_SIZE - BULLET_SIZE; // Used to align the enemy bullet correctly
+    private static final int enemyFireDelayValue = 180; // The delay between firing bullets for the enemy
+    
+    private int enemySpeed; // Determines how fast the enemy moves across the screen
+    private int enemyDirection; // Determines the x-direction the enemy ship moves
+    
+    private int xShip; // The x-position of the ship
+    private int yShip; // The y-position of the ship
+    
+    private int lives; // The player's number of lives left
+    private int enemyFireDelay; // A counter that when it reaches zero, the enemy ships fires 
+    private int barrier1Hit; // Value that determines damage value of the first barrier
+    private int barrier2Hit; // Value that determines damage value of the second barrier
+    private int barrier3Hit; // Value that determines damage value of the third barrier
+    private int barrier4Hit; // Value that determines damage value of the fourth barrier
+    
     private Timer timer;
-    boolean canMove = true; // Ensure's an object does not move more than once per cycle
-    boolean pBulletMoving = false; // Ensures the player bullet only moves when fired
-    boolean eBulletMoving = false; // Ensures the enemy bullet only moves when fired
-    boolean resetEnemy = false; 
-    boolean pauseGame = true;
-    SpaceObject player = new SpaceObject(1, 1, xShip, yShip);
-    SpaceObject pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip); // Player bullet
-    SpaceObject barrier1 = new SpaceObject(0, 0, 0 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
-    SpaceObject barrier2 = new SpaceObject(0, 0, 1 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
-    SpaceObject barrier3 = new SpaceObject(0, 0, 2 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
-    SpaceObject barrier4 = new SpaceObject(0, 0, 3 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
-    SpaceObject enemy = new SpaceObject(2, 1, OBJ_SIZE, 0);
-    SpaceObject eBullet = new SpaceObject(2, 2, enemy.xPos + BULLET_SIZE, eBulletPos); // Enemy bullet
+    
+    private boolean pBulletMoving; // Ensures the player bullet only moves when fired
+    private boolean eBulletMoving; // Ensures the enemy bullet only moves when fired
+    
+    private boolean resetEnemy; 
+    private static boolean pauseGame = true;
+    
+    private SpaceObject player;
+    private SpaceObject pBullet; // Player bullet
+    private SpaceObject barrier1;
+    private SpaceObject barrier2;
+    private SpaceObject barrier3;
+    private SpaceObject barrier4;
+    private SpaceObject enemy;
+    private SpaceObject eBullet; // Enemy bullet
 
-    public void moveShipRight()
+    /**
+     * Constructor for Space Game.
+     * Mostly adds interaction to the object
+     */
+    public SpaceGame()
+    {
+    	newGame();
+    	
+    	//sets the GUI to read keystrokes and make it the focus
+    	addKeyListener(this);
+        setFocusable(true);
+        setFocusTraversalKeysEnabled(false);
+        
+        //the following was grabbed off Oracle's swing tutorial online
+        //essentially it just automatically starts the game with a delay and sets the speed of the game
+        timer = new Timer(15, this);
+        //timer.setInitialDelay(3000);
+        timer.start();
+    }
+    
+    private void newGame()
+    {
+    	enemySpeed = 32;
+    	enemyDirection = OBJ_SIZE;
+        
+    	xShip = BOUNDS_SIZE/2;
+    	yShip = BOUNDS_SIZE - OBJ_SIZE;
+        
+    	lives = 3;
+    	enemyFireDelay = 240;
+    	barrier1Hit = 2;
+    	barrier2Hit = 2;
+    	barrier3Hit = 2;
+    	barrier4Hit = 2;
+        
+    	pBulletMoving = false;
+        eBulletMoving = false;
+        
+        resetEnemy = false; 
+        
+        player = new SpaceObject(1, 1, xShip, yShip);
+        pBullet = new SpaceObject(1, 2, xShip + BULLET_SIZE, yShip);
+        barrier1 = new SpaceObject(0, 0, 0 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+        barrier2 = new SpaceObject(0, 0, 1 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+        barrier3 = new SpaceObject(0, 0, 2 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+        barrier4 = new SpaceObject(0, 0, 3 * 128 + OBJ_SIZE, BOUNDS_SIZE - OBJ_SIZE * 4);
+        enemy = new SpaceObject(2, 1, OBJ_SIZE, 0);
+        eBullet = new SpaceObject(2, 2, enemy.xPos + BULLET_SIZE, eBulletPos); // Enemy bullet
+    }
+    
+    private void moveShipRight()
     {
     	boolean inBounds = checkUpperBounds(player.xPos);
     	if(inBounds == true){
@@ -52,7 +112,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveShipLeft()
+    private void moveShipLeft()
     {
     	boolean inBounds = checkLowerBounds(player.xPos);
     	if(inBounds == true)
@@ -66,17 +126,17 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void fireBullet() 
+    private void fireBullet() 
     {
     	pBullet.yPos -= OBJ_SIZE/4;
     }
     
-    public void fireEBullet() 
+    private void fireEBullet() 
     {
     	eBullet.yPos += OBJ_SIZE/4;
     }
     
-    public void enemyShoot() 
+    private void enemyShoot() 
     {
     	Random ran = new Random();
     	boolean shoot = ran.nextBoolean();
@@ -90,7 +150,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveBullet()
+    private void moveBullet()
     {
     	if(pBulletMoving == true) {
     		pBullet.yPos -= OBJ_SIZE/4;
@@ -119,7 +179,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public boolean checkLowerBounds(int position)
+    private static boolean checkLowerBounds(int position)
     {
     	if(position <= 0)
     	{
@@ -131,7 +191,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public boolean checkUpperBounds(int position)
+    private static boolean checkUpperBounds(int position)
     {
     	if(position >= BOUNDS_SIZE - OBJ_SIZE)
     	{
@@ -143,7 +203,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void checkBarrier()
+    private void checkBarrier()
     {
     	if(eBullet.xPos <= barrier1.xPos + barrier1.size && eBullet.xPos >= barrier1.xPos)
     	{
@@ -198,13 +258,9 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     			}
     		}
     	}
-    	else
-    	{
-    		// Do nothing
-    	}
     }
     
-    public void checkEnemy()
+    private void checkEnemy()
     {
     	if(pBullet.xPos <= enemy.xPos + OBJ_SIZE && pBullet.xPos >= enemy.xPos)
     	{
@@ -220,7 +276,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void checkPlayer()
+    private void checkPlayer()
     {
     	if(eBullet.xPos <= player.xPos + OBJ_SIZE && eBullet.xPos >= player.xPos)
     	{
@@ -234,7 +290,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     	}
     }
     
-    public void moveEnemy()
+    private void moveEnemy()
     {
     	moveBullet();
         if(checkUpperBounds(enemy.xPos) == false) 
@@ -261,6 +317,10 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         }
     }
     
+    /**
+     * Paint the current state of the game. 
+     * Using our timer, it repaints at a constant interval.
+     */
     public void paint(Graphics g)
     {
         super.paint(g);
@@ -286,10 +346,6 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         		G.setColor(Color.CYAN); 
 	            G.fillRect(barrier1.xPos, barrier1.yPos, barrier1.size, barrier1.size);
         	}
-        	else
-        	{
-        		// Do nothing
-        	}
             
         	if(barrier2Hit == 2)
         	{
@@ -300,10 +356,6 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         	{
         		G.setColor(Color.CYAN); 
 	            G.fillRect(barrier2.xPos, barrier2.yPos, barrier2.size, barrier2.size);
-        	}
-        	else
-        	{
-        		// Do nothing
         	}
             
         	if(barrier3Hit == 2)
@@ -316,10 +368,6 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         		G.setColor(Color.CYAN); 
 	            G.fillRect(barrier3.xPos, barrier3.yPos, barrier3.size, barrier3.size);
         	}
-        	else
-        	{
-        		// Do nothing
-        	}
 
         	if(barrier4Hit == 2)
         	{
@@ -330,10 +378,6 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         	{
         		G.setColor(Color.CYAN); 
 	            G.fillRect(barrier4.xPos, barrier4.yPos, barrier4.size, barrier4.size);
-        	}
-        	else
-        	{
-        		// Do nothing
         	}
 	        
 	        G.setColor(Color.YELLOW); // Bullet color
@@ -354,7 +398,9 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 	        G.drawString("Press Left & Right Arrows to Move", 214 - 2 * OBJ_SIZE, 166);
 	        G.drawString("Press Up Arrow or Space to Fire", 214 - 2 * OBJ_SIZE, 176);
 	        if(pauseGame == true) {
-	        	G.drawString("Press the p key to play", 214 - OBJ_SIZE, 226);
+	        	G.setColor(Color.WHITE);
+	        	G.setFont(new Font("Arial", Font.BOLD, 20));
+	        	G.drawString("Press the p key to play", 140, 232);
 	        }
 	        
         }
@@ -367,21 +413,12 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
         
         G.dispose();
     }
-
-    public SpaceGame()
-    {
-    	//sets the gui to read keystrokes and make it the focus
-    	addKeyListener(this);
-        setFocusable(true);
-        setFocusTraversalKeysEnabled(false);
-        
-        //the following was grabbed off Oracle's swing tutorial online
-        //essentially it just automatically starts the game with a delay and sets the speed of the game
-        timer = new Timer(15, this);
-        //timer.setInitialDelay(3000);
-        timer.start();
-    }
     
+    /**
+     * Main method used for testing
+     * @param args
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws InterruptedException
     {
         JFrame f = new JFrame("Space Game");
@@ -397,7 +434,7 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
     public void play()
     {
     	if(pauseGame == true) {
-    		
+    		//do nothing
     	}
     	else {
 	    	checkEnemy();
@@ -413,74 +450,51 @@ public class SpaceGame extends JPanel implements KeyListener, ActionListener
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
+		if(e.getKeyCode() == 80) // p key
+	    {
+	       	pauseGame = !pauseGame;
+	    }
+		else if(pauseGame == true)
+		{
+			//do nothing until game is unpaused
+		}
 		if(e.getKeyCode() == 37) // Left arrow key
         {
-			if(pauseGame == false)
-			{
-				moveShipLeft();
-			}
-			else
-			{
-				// Wait for game to unpause
-			}
-        }
+			moveShipLeft();
+		}
         else if(e.getKeyCode() == 32) // Space key
         {
-        	if(pauseGame == false)
-			{
-        		fireBullet();
-            	pBulletMoving = true;
-			}
-			else
-			{
-				// Wait for game to unpause
-			}
-        	
+        	fireBullet();
+            pBulletMoving = true;    	
         }
         else if(e.getKeyCode() == 38) // Up arrow key
         {
-        	if(pauseGame == false)
-			{
-        		fireBullet();
-            	pBulletMoving = true;
-			}
-			else
-			{
-				// Wait for game to unpause
-			}
-        }
+        	fireBullet();
+            pBulletMoving = true;
+		}
         else if(e.getKeyCode() == 39) // Right arrow key
         {
-        	if(pauseGame == false)
-			{
-        		moveShipRight();
-			}
-			else
-			{
-				// Wait for game to unpause
-			}
-        }
-        else if(e.getKeyCode() == 80) // p key
-        {
-        	pauseGame = !pauseGame;
-        }
+        	moveShipRight();
+		}
     }
 	
-    //following methods do nothing
-    //need to be here for interface implementation 
+    /* Following methods do nothing but make the KeyListener interface happy */
     @Override
     public void keyReleased(KeyEvent e) {}
 	
     @Override
     public void keyTyped(KeyEvent e) {}
+    /* End of useless methods */
     
-    //allows game to be played in separate GUI
     @Override
     public void actionPerformed(ActionEvent e) 
     {
     	play();
     }
     
+    /**
+     * Stop the game
+     */
     public void stop()
     {
     	timer.stop();
